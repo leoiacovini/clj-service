@@ -50,3 +50,5 @@
        (pretty-print res#)
        (with-color "<="))
      res#))
+
+(defn assoc-if [m k v] (if v (assoc m k v) m))

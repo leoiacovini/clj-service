@@ -2,19 +2,20 @@
   (:require [com.stuartsierra.component :as component]
             [datomic.api :as d]
             [io.pedestal.log :as log]
+            [common-labsoft.datomic.schema :as datomic.schema]
             [common-labsoft.protocols.config :as protocols.config]))
 
-(defn ensure-schemas! [conn schemas]
+(defn ensure-schemas! [conn {:keys [schemas enums]}]
+  (doseq [en enums]
+    @(d/transact conn (datomic.schema/create-enums en)))
   (doseq [schema schemas]
-    @(d/transact conn schema)))
+    @(d/transact conn (datomic.schema/create-schema schema))))
 
 (defn create-connection! [endpoint settings]
   (try
     (d/create-database endpoint)
     (let [connection (d/connect endpoint)]
-      (some->> settings
-               :schemas
-               (ensure-schemas! connection))
+      (ensure-schemas! settings connection)
       connection)
     (catch Exception e
       (log/error :component :datomic
