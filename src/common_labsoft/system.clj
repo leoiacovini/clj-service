@@ -2,6 +2,7 @@
   (:require [com.stuartsierra.component :as component]
             [common-labsoft.components.config :as components.config]
             [common-labsoft.components.pedestal :as components.pedestal]
+            [common-labsoft.components.datomic :as components.datomic]
             [common-labsoft.components.webapp :as components.webapp]))
 
 (def system (atom nil))
@@ -10,7 +11,8 @@
   (component/system-map
     :config   (component/using (components.config/new-config config-name) [])
     :pedestal (component/using (components.pedestal/new-pedestal routes) [:config :webapp])
-    :webapp   (component/using (components.webapp/new-webapp) [:config])))
+    :datomic  (component/using (components.datomic/new-datomic {}) [:config])
+    :webapp   (component/using (components.webapp/new-webapp) [:config :datomic])))
 
 (defn bootstrap! [config]
   (prn "Starting system!!")
