@@ -3,7 +3,9 @@
             [datomic.api :as d]
             [io.pedestal.log :as log]
             [common-labsoft.datomic.schema :as datomic.schema]
-            [common-labsoft.protocols.config :as protocols.config]))
+            [common-labsoft.datomic.api :as datomic.query]
+            [common-labsoft.protocols.config :as protocols.config]
+            [common-labsoft.protocols.datomic :as protocols.datomic]))
 
 (defn ensure-schemas! [conn {:keys [schemas enums]}]
   (doseq [en enums]
@@ -36,6 +38,13 @@
     (if-not conn
       this
       (do (d/release conn)
-          (dissoc this :conn)))))
+          (dissoc this :conn))))
+
+  protocols.datomic/Datomic
+  (connection [this]
+    (:conn this))
+
+  (db [this]
+    (d/db (:conn this))))
 
 (defn new-datomic [settings] (map->Datomic {:settings settings}))
