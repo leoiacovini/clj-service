@@ -7,6 +7,7 @@
 (defn base-service [routes port] {:env                     :prod
                                   ::http/routes            routes
                                   ::http/type              :jetty
+                                  ::http/join?             true
                                   ::http/port              (or port 8080)
                                   ::http/container-options {:h2c? true
                                                             :h2?  false
@@ -34,6 +35,15 @@
       server/create-server
       server/start))
 
+(defn run-prod
+  [service-map webapp]
+  (println "\nCreating your [PROD] server...")
+  (-> service-map
+      server/default-interceptors
+      (add-system webapp)
+      http/create-server
+      http/start))
+
 ;; TOOD: Refactor this and make it more customizable and stable
 (defrecord PedestalServer [routes config service webapp]
   component/Lifecycle
@@ -42,12 +52,7 @@
         (let [service-config (base-service routes (protocols.config/get-maybe config :port))]
           (if (= "dev" (protocols.config/get-maybe config :env))
             (assoc this :service (run-dev service-config webapp))
-            (->> service-config
-                 server/default-interceptors
-                 #(add-system % webapp)
-                 http/create-server
-                 http/start
-                 (assoc this :service))))))
+            (assoc this :service (run-prod service-config webapp))))))
 
   (stop [this]
     (when service

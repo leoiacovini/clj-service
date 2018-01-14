@@ -22,6 +22,7 @@
   (prn "Starting system!!")
   (let [new-system (-> (system-map config)
                        component/start-system)]
+    (prn "System started successfully!!")
     (reset! system new-system)))
 
 (defn stop! []
