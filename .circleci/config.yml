@@ -4,7 +4,7 @@
 #
 version: 2
 jobs:
-  test-and-publish:
+  build:
     docker:
       - image: circleci/clojure:lein-2.7.1
 
@@ -30,4 +30,4 @@ jobs:
           key: v1-dependencies-{{ checksum "project.clj" }}
 
       - run: lein midje
-      - run: lein deploy clojars
+      - run: lein deploy releases
