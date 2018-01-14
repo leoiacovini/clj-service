@@ -1,7 +1,10 @@
-(defproject labsoft-2018/common-labsoft "0.1.0-SNAPSHOT"
+(defproject labsoft-2018/common-labsoft "0.1.1-SNAPSHOT"
   :description "common code for labsoft 2 microservices"
   :url ""
   :license {}
+  :repositories [["releases" {:url "https://clojars.org/repo"
+                              :username :env/clojars_username
+                              :password :env/clojars_password}]]
   :plugins [[lein-midje "3.2.1"]]
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [clj-http "3.7.0"]
