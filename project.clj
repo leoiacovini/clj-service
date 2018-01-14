@@ -2,10 +2,11 @@
   :description "common code for labsoft 2 microservices"
   :url ""
   :license {}
+  :plugins [[lein-midje "3.2.1"]]
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [clj-http "3.7.0"]
                  [com.datomic/datomic-free "0.9.5651"]
-                 [com.cemerick/bandalore "0.0.6"]
+                 [com.cemerick/bandalore "0.0.6" :exclusions [joda-time]]
                  [prismatic/schema "1.1.7"]
                  [cheshire "5.8.0"]
                  [metosin/schema-tools "0.9.1"]

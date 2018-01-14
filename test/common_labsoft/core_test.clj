@@ -1,7 +1,5 @@
 (ns common-labsoft.core-test
-  (:require [clojure.test :refer :all]
-            [common-labsoft.core :refer :all]))
+  (:require [midje.sweet :refer :all]))
 
-(deftest a-test
-  (testing "FIXME, I fail."
-    (is (= 0 1))))
+(fact "dump fact"
+  1 => 1)
