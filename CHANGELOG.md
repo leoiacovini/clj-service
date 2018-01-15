@@ -1,5 +1,8 @@
 # Change Log
 
+### [0.2.1-SNAPSHOT]
+- Fix logger config
+
 ### [0.2.0-SNAPSHOT]
 - Add schema interceptors
 
