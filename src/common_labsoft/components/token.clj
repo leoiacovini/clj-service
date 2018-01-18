@@ -11,10 +11,12 @@
 (defn expiration-time [duration]
   (time/plus (time/now) (time/minutes duration)))
 
-(defn try-pri-key [token pri-path]
+(defn try-priv-key [token pri-path]
   (try
-    (assoc token :pri-key (-> (protocols.s3-client/get-object (:s3-auth token) pri-path)
-                              buddy.keys/str->private-key))
+    (if pri-path
+      (assoc token :priv-key (-> (protocols.s3-client/get-object (:s3-auth token) pri-path)
+                                 buddy.keys/str->private-key))
+      token)
     (catch Throwable e
       (log/warn :error :error-fetching-private-key :path pri-path :exception e)
       token)))
@@ -22,12 +24,12 @@
 (defrecord Token [config s3-auth]
   component/Lifecycle
   (start [this]
-    (-> (assoc this :pub-key (-> (protocols.s3-client/get-object s3-auth "pub-key.pem")
+    (-> (assoc this :pub-key (-> (protocols.s3-client/get-object s3-auth (protocols.config/get! config :pub-key-path))
                                  buddy.keys/str->public-key))
-        (try-pri-key "pri-key.pem")))
+        (try-priv-key (protocols.config/get-maybe config :priv-key-path))))
 
   (stop [this]
-    (dissoc this :pub-key :pri-key))
+    (dissoc this :pub-key :priv-key))
 
   protocols.token/Token
   (encode [this content]
@@ -35,7 +37,7 @@
         (assoc :exp (expiration-time (protocols.config/get! config :jwt-duration))
                :iss "tudo-prontaum"
                :aud "user")
-        (jwt/sign (:pri-key this) {:alg :rs256})))
+        (jwt/sign (:priv-key this) {:alg :rs256})))
 
   (decode [this token]
     (try

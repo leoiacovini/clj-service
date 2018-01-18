@@ -28,4 +28,4 @@
               context
               (do
                 (log/error :log :forbidden-access)
-                (exception/forbidden!))))})
+                (exception/forbidden! {}))))})

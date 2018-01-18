@@ -39,16 +39,35 @@
           (log/error :exception e :error :receving-message :queue queue :message message))))
     (recur)))
 
-(defn init-async-consumer! [queue]
+(defn is-consumer? [queue]
+  (#{:consumer :both} (:direction queue)))
+
+(defn is-producer? [queue]
+  (#{:producer :both} (:direction queue)))
+
+(defn get-queue [sqs produce-map]
+  (-> sqs
+      :queues
+      (get (:queue produce-map))))
+
+(defn consumer-started? [queue]
+  (and (is-consumer? queue)
+       (some? (:chan queue))))
+
+(defn create-consumer-loop! [queue]
   (let [queue-channel (async/chan 50)]
     (fetch-message! queue queue-channel)
     (handle-message! queue queue-channel)
     (assoc queue :chan queue-channel)))
 
+(defn init-async-consumer! [queue]
+  (if (is-consumer? queue)
+    (create-consumer-loop! queue)
+    queue))
+
 (defn stop-async-consumer! [queue]
-  (some-> queue
-          :chan
-          async/close!)
+  (when (consumer-started? queue)
+    (async/close! (:chan queue)))
   (dissoc! queue :chan))
 
 (defn start-consumers! [queues]
@@ -69,7 +88,9 @@
   (misc/map-vals queue-config->queue settings-map))
 
 (defn produce! [queue message]
-  (sqs/send-message (:url queue) (serialize-message message)))
+  (if (is-producer? queue)
+    (sqs/send-message (:url queue) (serialize-message message))
+    (log/error :error :producing-to-non-producer-queue :queue queue)))
 
 (defrecord SQS [config queues-settings]
   component/Lifecycle
@@ -83,7 +104,7 @@
 
   protocols.sqs/SQS
   (produce! [this produce-map]
-    (produce! (-> this :queues (get (:queue produce-map))) (:message produce-map))))
+    (produce! (get-queue this produce-map) (:message produce-map))))
 
 (defn new-sqs [queues-settings]
   (map->SQS {:queues-config queues-settings}))
