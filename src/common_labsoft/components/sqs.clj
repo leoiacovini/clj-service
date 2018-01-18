@@ -65,16 +65,16 @@
   (assoc qconf :name name
                :url (find-or-create-queue! (name qname))))
 
-(defn gen-queue-map [config-map]
-  (misc/map-vals queue-config->queue config-map))
+(defn gen-queue-map [settings-map]
+  (misc/map-vals queue-config->queue settings-map))
 
 (defn produce! [queue message]
   (sqs/send-message (:url queue) (serialize-message message)))
 
-(defrecord SQS [config queues-config]
+(defrecord SQS [config queues-settings]
   component/Lifecycle
   (start [this]
-    (assoc this :queues (-> (gen-queue-map queues-config)
+    (assoc this :queues (-> (gen-queue-map queues-settings)
                             (start-consumers!))))
 
   (stop [this]
@@ -84,3 +84,6 @@
   protocols.sqs/SQS
   (produce! [this produce-map]
     (produce! (-> this :queues (get (:queue produce-map))) (:message produce-map))))
+
+(defn new-sqs [queues-settings]
+  (map->SQS {:queues-config queues-settings}))
