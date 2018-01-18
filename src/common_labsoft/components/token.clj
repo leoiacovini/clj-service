@@ -25,7 +25,7 @@
         (try-pri-key "pri-key.pem")))
 
   (stop [this]
-    (dissoc this :pub-key :pri-kay))
+    (dissoc this :pub-key :pri-key))
 
   protocols.token/Token
   (encode [this content]
