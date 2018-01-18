@@ -35,11 +35,11 @@
         (assoc :exp (expiration-time (protocols.config/get! config :jwt-duration))
                :iss "tudo-prontaum"
                :aud "user")
-        (jwt/sign (:pri-key this) {:alg :es256})))
+        (jwt/sign (:pri-key this) {:alg :rs256})))
 
   (decode [this token]
     (try
-      (jwt/unsign token (:pub-key this) {:alg :es256})
+      (jwt/unsign token (:pub-key this) {:alg :rs256})
       (catch Exception _ nil)))
   (verify [this token]
     (protocols.token/decode this token)))
