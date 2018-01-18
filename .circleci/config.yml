@@ -28,7 +28,6 @@ jobs:
           key: v1-dependencies-{{ checksum "project.clj" }}
 
       - run: lein midje
-      - run: lein deploy clojars
 
   publish:
     docker:
@@ -57,7 +56,7 @@ jobs:
 
 workflows:
   version: 2
-  build-deploy:
+  test-publish:
     jobs:
       - test
       - publish:
