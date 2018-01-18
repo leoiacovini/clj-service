@@ -1,4 +1,4 @@
-(defproject labsoft-2018/common-labsoft "0.4.0-SNAPSHOT"
+(defproject labsoft-2018/common-labsoft "0.4.1-SNAPSHOT"
   :description "common code for labsoft 2 microservices"
   :url ""
   :license {}

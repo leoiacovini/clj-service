@@ -1,5 +1,8 @@
 # Change Log
 
+### [0.4.1-SNAPSHOT]
+- Improvements and small fixes
+
 ### [0.4.0-SNAPSHOT]
 - Add SQS component
 
