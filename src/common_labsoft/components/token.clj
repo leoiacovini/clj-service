@@ -5,7 +5,8 @@
             [buddy.core.keys :as buddy.keys]
             [clj-time.core :as time]
             [com.stuartsierra.component :as component]
-            [common-labsoft.protocols.s3-client :as protocols.s3-client]))
+            [common-labsoft.protocols.s3-client :as protocols.s3-client]
+            [io.pedestal.log :as log]))
 
 (defn expiration-time [duration]
   (time/plus (time/now) (time/minutes duration)))
@@ -14,7 +15,8 @@
   (try
     (assoc token :pri-key (-> (protocols.s3-client/get-object (:s3-auth token) pri-path)
                               buddy.keys/str->private-key))
-    (catch Throwable _
+    (catch Throwable e
+      (log/warn :error :error-fetching-private-key :path pri-path :exception e)
       token)))
 
 (defrecord Token [config s3-auth]
@@ -33,11 +35,11 @@
         (assoc :exp (expiration-time (protocols.config/get! config :jwt-duration))
                :iss "tudo-prontaum"
                :aud "user")
-        (jwt/sign (:pri-key this) {:alg :es256})))
+        (jwt/sign (:pri-key this) {:alg :rs256})))
 
   (decode [this token]
     (try
-      (jwt/unsign token (:pub-key this) {:alg :es256})
+      (jwt/unsign token (:pub-key this) {:alg :rs256})
       (catch Exception _ nil)))
   (verify [this token]
     (protocols.token/decode this token)))

@@ -1,5 +1,11 @@
 # Change Log
 
+### [0.4.0-SNAPSHOT]
+- Add SQS component
+
+### [0.3.0-SNAPSHOT]
+- Add S3 component and use RSA for token
+
 ### [0.2.1-SNAPSHOT]
 - Fix logger config
 
