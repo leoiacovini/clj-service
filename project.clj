@@ -1,4 +1,4 @@
-(defproject labsoft-2018/common-labsoft "0.2.1-SNAPSHOT"
+(defproject labsoft-2018/common-labsoft "0.4.0-SNAPSHOT"
   :description "common code for labsoft 2 microservices"
   :url ""
   :license {}
@@ -11,6 +11,7 @@
                  [com.datomic/datomic-free "0.9.5651" :exclusions [org.slf4j/slf4j-nop]]
                  [prismatic/schema "1.1.7"]
                  [cheshire "5.8.0"]
+                 [org.clojure/core.async "0.4.474"]
                  [metosin/schema-tools "0.9.1"]
                  [buddy "2.0.0"]
                  [com.stuartsierra/component "0.3.2"]

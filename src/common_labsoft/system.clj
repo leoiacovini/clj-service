@@ -13,18 +13,18 @@
 (defn system-map [{routes :routes config-name :config-name custom-system :custom-system}]
   (merge
     (component/system-map
-      :config (component/using (components.config/new-config config-name) [])
-      :s3-auth (component/using (components.s3-client/new-s3-client :s3-auth) [:config])
-      :pedestal (component/using (components.pedestal/new-pedestal routes) [:config :webapp])
-      :datomic (component/using (components.datomic/new-datomic {}) [:config])
-      :token (component/using (components.token/new-token) [:config :s3-auth])
-      :crypto (component/using (components.crypto/new-crypto) [:config])
-      :webapp (component/using (components.webapp/new-webapp) [:config :datomic :token :crypto]))
+      :config    (component/using (components.config/new-config config-name) [])
+      :s3-auth   (component/using (components.s3-client/new-s3-client :s3-auth) [:config])
+      :pedestal  (component/using (components.pedestal/new-pedestal routes) [:config :webapp])
+      :datomic   (component/using (components.datomic/new-datomic {}) [:config])
+      :token     (component/using (components.token/new-token) [:config :s3-auth])
+      :crypto    (component/using (components.crypto/new-crypto) [:config])
+      :webapp    (component/using (components.webapp/new-webapp) [:config :datomic :token :crypto]))
     custom-system))
 
-(defn bootstrap! [config]
+(defn bootstrap! [settings]
   (prn "Starting system!!")
-  (let [new-system (-> (system-map config)
+  (let [new-system (-> (system-map settings)
                        component/start-system)]
     (prn "System started successfully!!")
     (reset! system new-system)))
