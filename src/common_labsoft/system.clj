@@ -1,6 +1,7 @@
 (ns common-labsoft.system
   (:require [com.stuartsierra.component :as component]
             [common-labsoft.components.config :as components.config]
+            [common-labsoft.components.s3-client :as components.s3-client]
             [common-labsoft.components.pedestal :as components.pedestal]
             [common-labsoft.components.datomic :as components.datomic]
             [common-labsoft.components.webapp :as components.webapp]
@@ -9,14 +10,17 @@
 
 (def system (atom nil))
 
-(defn system-map [{routes :routes config-name :config-name}]
-  (component/system-map
-    :config   (component/using (components.config/new-config config-name) [])
-    :pedestal (component/using (components.pedestal/new-pedestal routes) [:config :webapp])
-    :datomic  (component/using (components.datomic/new-datomic {}) [:config])
-    :token    (component/using (components.token/new-token) [:config])
-    :crypto   (component/using (components.crypto/new-crypto) [:config])
-    :webapp   (component/using (components.webapp/new-webapp) [:config :datomic :token :crypto])))
+(defn system-map [{routes :routes config-name :config-name custom-system :custom-system}]
+  (merge
+    (component/system-map
+      :config (component/using (components.config/new-config config-name) [])
+      :s3-auth (component/using (components.s3-client/new-s3-client :s3-auth) [:config])
+      :pedestal (component/using (components.pedestal/new-pedestal routes) [:config :webapp])
+      :datomic (component/using (components.datomic/new-datomic {}) [:config])
+      :token (component/using (components.token/new-token) [:config :s3-auth])
+      :crypto (component/using (components.crypto/new-crypto) [:config])
+      :webapp (component/using (components.webapp/new-webapp) [:config :datomic :token :crypto]))
+    custom-system))
 
 (defn bootstrap! [config]
   (prn "Starting system!!")

@@ -8,8 +8,7 @@
   :plugins [[lein-midje "3.2.1"]]
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [clj-http "3.7.0"]
-                 [com.datomic/datomic-free "0.9.5651"]
-                 [com.cemerick/bandalore "0.0.6" :exclusions [joda-time]]
+                 [com.datomic/datomic-free "0.9.5651" :exclusions [org.slf4j/slf4j-nop]]
                  [prismatic/schema "1.1.7"]
                  [cheshire "5.8.0"]
                  [metosin/schema-tools "0.9.1"]
@@ -21,4 +20,5 @@
                  [org.slf4j/log4j-over-slf4j "1.7.22"]
                  [org.slf4j/slf4j-api "1.7.22"]
                  [mvxcvi/puget "1.0.2"]
+                 [amazonica "0.3.117"]
                  [midje "1.9.1"]])

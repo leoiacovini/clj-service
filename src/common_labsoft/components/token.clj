@@ -2,22 +2,42 @@
   (:require [common-labsoft.protocols.config :as protocols.config]
             [common-labsoft.protocols.token :as protocols.token]
             [buddy.sign.jwt :as jwt]
-            [clj-time.core :as time]))
+            [buddy.core.keys :as buddy.keys]
+            [clj-time.core :as time]
+            [com.stuartsierra.component :as component]
+            [common-labsoft.protocols.s3-client :as protocols.s3-client]))
 
 (defn expiration-time [duration]
   (time/plus (time/now) (time/minutes duration)))
 
-(defrecord Token [config]
+(defn try-pri-key [token pri-path]
+  (try
+    (assoc token :pri-key (-> (protocols.s3-client/get-object (:s3-auth token) pri-path)
+                              buddy.keys/str->private-key))
+    (catch Throwable _
+      token)))
+
+(defrecord Token [config s3-auth]
+  component/Lifecycle
+  (start [this]
+    (-> (assoc this :pub-key (-> (protocols.s3-client/get-object s3-auth "pub-key.pem")
+                                 buddy.keys/str->public-key))
+        (try-pri-key "pri-key.pem")))
+
+  (stop [this]
+    (dissoc this :pub-key :pri-kay))
+
   protocols.token/Token
   (encode [this content]
     (-> content
         (assoc :exp (expiration-time (protocols.config/get! config :jwt-duration))
-               :iss "3design"
+               :iss "tudo-prontaum"
                :aud "user")
-        (jwt/sign (protocols.config/get! config :jwt-key))))
+        (jwt/sign (:pri-key this) {:alg :es256})))
+
   (decode [this token]
     (try
-      (jwt/unsign token (protocols.config/get! config :jwt-key))
+      (jwt/unsign token (:pub-key this) {:alg :es256})
       (catch Exception _ nil)))
   (verify [this token]
     (protocols.token/decode this token)))
