@@ -1,2 +1,6 @@
-{"env": "dev",
-"datomic-endpoint": "datomic:mem://test-db"}
+{
+  "env": "dev",
+  "datomic-endpoint": "datomic:mem://test-db",
+  "port": 8080,
+  "s3-auth": {"bucket-name": "secrets", "region": "sa-east-1"}
+}
