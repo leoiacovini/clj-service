@@ -9,15 +9,17 @@
 
 (defn ensure-schemas! [conn {:keys [schemas enums]}]
   (doseq [en enums]
-    @(d/transact conn (datomic.schema/create-enums en)))
+    @(d/transact conn (datomic.schema/create-enums en))
+    (log/info :datomic :enum-installed :enum en))
   (doseq [schema schemas]
-    @(d/transact conn (datomic.schema/create-schema schema))))
+    @(d/transact conn (datomic.schema/create-schema schema))
+    (log/info :datomic :schema-installed :schema schema)))
 
 (defn create-connection! [endpoint settings]
   (try
     (d/create-database endpoint)
     (let [connection (d/connect endpoint)]
-      (ensure-schemas! settings connection)
+      (ensure-schemas! connection settings)
       connection)
     (catch Exception e
       (log/error :component :datomic

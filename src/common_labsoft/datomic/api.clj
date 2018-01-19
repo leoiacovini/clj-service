@@ -30,7 +30,7 @@
     (when (< 1 (count (first result))) (exception/server-error! {:assert-error :more-than-one-result
                                                                  :query        query
                                                                  :args         args}))
-    (ffirst result)))
+    (d/entity db (ffirst result))))
 
 (defn lookup [id-key id db]
   (query-single! '{:find  [?e]
