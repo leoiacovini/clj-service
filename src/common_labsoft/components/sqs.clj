@@ -107,4 +107,4 @@
     (produce! (get-queue this produce-map) (:message produce-map))))
 
 (defn new-sqs [queues-settings]
-  (map->SQS {:queues-config queues-settings}))
+  (map->SQS {:queues-settings queues-settings}))
