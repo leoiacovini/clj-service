@@ -5,7 +5,8 @@
             [io.pedestal.log :as log]
             [common-labsoft.misc :as misc]
             [common-labsoft.protocols.sqs :as protocols.sqs]
-            [com.stuartsierra.component :as component]))
+            [com.stuartsierra.component :as component]
+            [common-labsoft.schema :as schema]))
 
 (defn receive-message! [queue]
   (some-> (sqs/receive-message (:url queue))
@@ -13,13 +14,15 @@
           first
           (assoc :queue-url (:url queue))))
 
-(defn parse-message [message]
+(defn parse-message [message schema]
   (-> message
       :body
-      (cheshire/parse-string true)))
+      (cheshire/parse-string true)
+      (schema/coerce-if schema)))
 
-(defn serialize-message [message]
-  (cheshire/generate-string message))
+(defn serialize-message [message schema]
+  (-> (schema/coerce-if message schema)
+      (cheshire/generate-string message)))
 
 (defn fetch-message! [queue queue-channel]
   (async/go-loop []
@@ -27,12 +30,12 @@
              (async/>! queue-channel))
     (recur)))
 
-(defn handle-message! [{handler-fn :handler :as queue} queue-channel]
+(defn handle-message! [{handler-fn :handler schema :schema :as queue} queue-channel]
   (async/go-loop []
     (when-let [message (async/<! queue-channel)]
       (try
         (some-> message
-                parse-message
+                (parse-message schema)
                 handler-fn)
         (sqs/delete-message message)
         (catch Throwable e
@@ -87,9 +90,9 @@
 (defn gen-queue-map [settings-map]
   (misc/map-vals queue-config->queue settings-map))
 
-(defn produce! [queue message]
+(defn produce! [queue {message :message schema :schema}]
   (if (is-producer? queue)
-    (sqs/send-message (:url queue) (serialize-message message))
+    (sqs/send-message (:url queue) (serialize-message message schema))
     (log/error :error :producing-to-non-producer-queue :queue queue)))
 
 (defrecord SQS [config queues-settings]
@@ -104,7 +107,7 @@
 
   protocols.sqs/SQS
   (produce! [this produce-map]
-    (produce! (get-queue this produce-map) (:message produce-map))))
+    (produce! (get-queue this produce-map) produce-map)))
 
 (defn new-sqs [queues-settings]
   (map->SQS {:queues-settings queues-settings}))
