@@ -3,11 +3,15 @@
             [datomic.api :as d]
             [io.pedestal.log :as log]
             [common-labsoft.datomic.schema :as datomic.schema]
-            [common-labsoft.datomic.api :as datomic.query]
             [common-labsoft.protocols.config :as protocols.config]
             [common-labsoft.protocols.datomic :as protocols.datomic]))
 
+(defn install-meta-schema! [conn]
+  @(d/transact conn (concat datomic.schema/meta-schema
+                            datomic.schema/meta-enums)))
+
 (defn ensure-schemas! [conn {:keys [schemas enums]}]
+  (install-meta-schema! conn)
   (doseq [en enums]
     @(d/transact conn (datomic.schema/create-enums en))
     (log/info :datomic :enum-installed :enum en))
