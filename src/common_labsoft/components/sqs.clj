@@ -4,15 +4,15 @@
             [cheshire.core :as cheshire]
             [io.pedestal.log :as log]
             [common-labsoft.misc :as misc]
+            [common-labsoft.time]
             [common-labsoft.protocols.sqs :as protocols.sqs]
             [com.stuartsierra.component :as component]
             [common-labsoft.schema :as schema]))
 
-(defn receive-message! [queue]
-  (some-> (sqs/receive-message (:url queue))
-          :messages
-          first
-          (assoc :queue-url (:url queue))))
+(defn receive-messages! [queue]
+  (some->> (sqs/receive-message (:url queue))
+           :messages
+           (map #(assoc % :queue-url (:url queue)))))
 
 (defn parse-message [message schema]
   (-> message
@@ -26,8 +26,8 @@
 
 (defn fetch-message! [queue queue-channel]
   (async/go-loop []
-    (some->> (receive-message! queue)
-             (async/>! queue-channel))
+    (doseq [message (receive-messages! queue)]
+      (async/>! queue-channel message))
     (recur)))
 
 (defn handle-message! [{handler-fn :handler schema :schema :as queue} queue-channel]
@@ -83,12 +83,12 @@
   (or (sqs/find-queue qname)
       (:queue-url (sqs/create-queue qname))))
 
-(defn queue-config->queue [qname qconf]
-  (assoc qconf :name name
-               :url (find-or-create-queue! (name qname))))
+(defn queue-config->queue [[qname qconf]]
+  [qname (assoc qconf :name name
+                      :url (find-or-create-queue! (name qname)))])
 
 (defn gen-queue-map [settings-map]
-  (misc/map-vals queue-config->queue settings-map))
+  (into {} (map queue-config->queue settings-map)))
 
 (defn produce! [queue {message :message schema :schema}]
   (if (is-producer? queue)

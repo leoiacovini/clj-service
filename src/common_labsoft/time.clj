@@ -39,14 +39,14 @@
 
 (s/defn coerce-to-local-date-time :- LocalDateTime
   [v]
-  (time.coerce/to-local-date-time v))
+  (time.coerce/to-date-time v))
 
 (s/defn coerce-to-local-date :- LocalDate
   [v]
   (time.coerce/to-local-date v))
 
-(cheshire.custom/add-encoder LocalDateTime (fn [val writer]
-                                             (cheshire.generate/encode-str (str val) writer)))
+(cheshire.generate/add-encoder LocalDateTime (fn [val writer]
+                                               (cheshire.generate/encode-str (str val) writer)))
 
 (cheshire.generate/add-encoder LocalDate (fn [val writer]
                                            (cheshire.generate/encode-str (str val) writer)))

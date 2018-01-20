@@ -1,1 +1,1 @@
-{debug/print common-labsoft.misc/debug}
+{misc/debug common-labsoft.misc/debug}

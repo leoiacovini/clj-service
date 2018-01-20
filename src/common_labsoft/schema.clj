@@ -4,11 +4,11 @@
             [schema.core :as s]
             [common-labsoft.time :as time]))
 
-(def time-matchers {time/LocalDateTime time/coerce-to-local-date-time
-                    time/LocalDate     time/coerce-to-local-date})
+(def time-matchers {time/LocalDate     time/coerce-to-local-date
+                    time/LocalDateTime time/coerce-to-local-date-time})
 
-(def internalize-matchers (coerce/first-matcher [time-matchers
-                                                 coerce/json-coercion-matcher]))
+(def internalize-matchers (or time-matchers
+                              coerce/json-coercion-matcher))
 
 (defn coerce [value schema]
   (schema-tools/select-schema value schema internalize-matchers))

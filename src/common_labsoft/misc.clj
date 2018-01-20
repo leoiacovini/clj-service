@@ -41,7 +41,7 @@
                                            :map-delimiter  ""}))]
     (subs str 0 (dec (count str)))))
 
-(defmacro debug [form]
+(defn debug [form]
   `(let [res# ~form]
      (println
        (with-color " debug ")
