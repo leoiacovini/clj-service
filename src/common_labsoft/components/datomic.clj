@@ -33,17 +33,14 @@
 (defrecord Datomic [config settings conn]
   component/Lifecycle
   (start [this]
-    (if conn
-      this
-      (let [endpoint (protocols.config/get! config :datomic-endpoint)]
-        (println "Creating Datomic database and connection...")
-        (assoc this :endpoint endpoint
-                    :conn (create-connection! endpoint settings)))))
+    (prn "Creating Datomic database and connection...")
+    (let [endpoint (protocols.config/get! config :datomic-endpoint)]
+      (assoc this :endpoint endpoint
+                  :conn (create-connection! endpoint settings))))
 
   (stop [this]
-    (if-not conn
-      this
-      (dissoc this :conn)))
+    (prn "Stopping Datomic....")
+    (dissoc this :conn))
 
   protocols.datomic/Datomic
   (connection [this]
