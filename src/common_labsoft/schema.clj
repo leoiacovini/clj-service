@@ -1,10 +1,17 @@
 (ns common-labsoft.schema
   (:require [schema.coerce :as coerce]
             [schema-tools.core :as schema-tools]
-            [schema.core :as s]))
+            [schema.core :as s]
+            [common-labsoft.time :as time]))
+
+(def time-matchers {time/LocalDateTime time/coerce-to-local-date-time
+                    time/LocalDate     time/coerce-to-local-date})
+
+(def internalize-matchers (coerce/first-matcher [time-matchers
+                                                 coerce/json-coercion-matcher]))
 
 (defn coerce [value schema]
-  (schema-tools/select-schema value schema coerce/json-coercion-matcher))
+  (schema-tools/select-schema value schema internalize-matchers))
 
 (defn coerce-if [value schema]
   (if (and schema value)
