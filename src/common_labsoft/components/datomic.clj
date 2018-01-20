@@ -43,8 +43,7 @@
   (stop [this]
     (if-not conn
       this
-      (do (d/release conn)
-          (dissoc this :conn))))
+      (dissoc this :conn)))
 
   protocols.datomic/Datomic
   (connection [this]
