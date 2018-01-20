@@ -81,7 +81,8 @@
 
 (defn find-or-create-queue! [qname]
   (or (sqs/find-queue qname)
-      (:queue-url (sqs/create-queue qname))))
+      (:queue-url (sqs/create-queue {:queue-name qname
+                                     :attributes {:ReceiveMessageWaitTimeSeconds 20}}))))
 
 (defn queue-config->queue [[qname qconf]]
   [qname (assoc qconf :name name
