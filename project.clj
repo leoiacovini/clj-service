@@ -8,6 +8,8 @@
   :deploy-repositories [["clojars" {:url      "https://clojars.org/repo"
                                     :username :env/clojars_username
                                     :password :env/clojars_password}]]
+  :injections [(require 'common-labsoft.misc)
+               (require 'common-labsoft.time)]
   :plugins [[lein-midje "3.2.1"]]
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [clj-http "3.7.0"]
