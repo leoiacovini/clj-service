@@ -5,25 +5,29 @@
   (:import [schema.core EnumSchema]
            [clojure.lang Associative]))
 
-(def schema->datomic-value {s/Str              :db.type/string
-                            s/Int              :db.type/long
-                            EnumSchema         :db.type/ref
-                            s/Keyword          :db.type/keyword
-                            s/Bool             :db.type/boolean
-                            s/Uuid             :db.type/uuid
-                            Associative        :db.type/ref
-                            time/LocalDate     :db.type/instant
-                            time/LocalDateTime :db.type/instant})
+(defn schema->datomic-value [schema]
+  (cond
+    (= schema s/Str) :db.type/string
+    (= schema s/Int) :db.type/long
+    (instance? EnumSchema schema) :db.type/ref
+    (= schema s/Keyword) :db.type/keyword
+    (= schema s/Bool) :db.type/boolean
+    (= schema s/Uuid) :db.type/uuid
+    (instance? schema Associative) :db.type/ref
+    (= schema time/LocalDate) :db.type/instant
+    (= schema time/LocalDateTime) :db.type/instant))
 
-(def schema->meta-schema {s/Str              :meta.type/string
-                          s/Int              :meta.type/long
-                          EnumSchema         :meta.type/ref
-                          s/Keyword          :meta.type/keyword
-                          s/Bool             :meta.type/boolean
-                          s/Uuid             :meta.type/uuid
-                          Associative        :meta.type/ref
-                          time/LocalDateTime :meta.type/local-date-time
-                          time/LocalDate     :meta.type/local-date})
+(defn schema->meta-schema [schema]
+  (cond
+    (= schema s/Str) :meta.type/string
+    (= schema s/Int) :meta.type/long
+    (instance? EnumSchema schema) :meta.type/ref
+    (= schema s/Keyword) :meta.type/keyword
+    (= schema s/Bool) :meta.type/boolean
+    (= schema s/Uuid) :meta.type/uuid
+    (instance? schema Associative) :meta.type/ref
+    (= schema time/LocalDateTime) :meta.type/local-date-time
+    (= schema time/LocalDate) :meta.type/local-date))
 
 (def meta-schema [{:db/ident       :meta/type
                    :db/valueType   :db.type/ref
