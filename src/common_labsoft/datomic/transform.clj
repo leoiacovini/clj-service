@@ -11,14 +11,14 @@
 
 (defn clj->datomic [value]
   (cond
-    (instance? time/LocalDateTime value) (time/date-time->inst value)
+    (instance? time/LocalDateTime value) (time/local-date-time->inst value)
     (instance? time/LocalDate value) (time/local-date->inst value)
     :else value))
 
 (defn datomic->clj [attr value db]
   (let [meta-type (schema-definition attr db)]
     (case meta-type
-      :meta.type/local-date-time (time/inst->date-time value)
+      :meta.type/local-date-time (time/inst->local-date-time value)
       :meta.type/local-date (time/inst->local-date value)
       value)))
 
