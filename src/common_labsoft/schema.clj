@@ -24,7 +24,7 @@
   (let [schema (or (:schema meta) meta)]
     (cond
       (instance? EnumSchema schema) schema
-      (map? schema) (skel->schema schema)
+      (and (not (record? schema)) (map? schema)) (skel->schema schema)
       (seq? schema) (map render-schema schema)
       :else schema)))
 
