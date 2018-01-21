@@ -44,7 +44,7 @@
       http/create-server
       http/start))
 
-;; TOOD: Refactor this and make it more customizable and stable
+;; TODO: Refactor this and make it more customizable and stable
 (defrecord PedestalServer [routes config service webapp]
   component/Lifecycle
   (start [this]
