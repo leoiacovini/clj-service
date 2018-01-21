@@ -7,5 +7,14 @@
     "region": "us-east-1"
   },
   "pub-key-path": "test/pubkey.pem",
-  "priv-key-path": "test/privkey.pem"
+  "priv-key-path": "test/privkey.pem",
+  "services": {
+    "customers": {
+      "host": "https://customers.labsoft.host",
+      "endpoints": {
+        "one-customer": "/customers/:id",
+        "all-customers": "/customers"
+      }
+    }
+  }
 }
