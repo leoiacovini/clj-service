@@ -48,11 +48,12 @@
 (defrecord PedestalServer [routes config service webapp]
   component/Lifecycle
   (start [this]
-    (or service
-        (let [service-config (base-service routes (protocols.config/get-maybe config :port))]
-          (if (= "dev" (protocols.config/get-maybe config :env))
-            (assoc this :service (run-dev service-config webapp))
-            (assoc this :service (run-prod service-config webapp))))))
+    (if service
+      this
+      (let [service-config (base-service routes (protocols.config/get-maybe config :port))]
+        (if (= "dev" (protocols.config/get-maybe config :env))
+          (assoc this :service (run-dev service-config webapp))
+          (assoc this :service (run-prod service-config webapp))))))
 
   (stop [this]
     (when service

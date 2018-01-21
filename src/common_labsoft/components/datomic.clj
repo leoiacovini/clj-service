@@ -4,7 +4,8 @@
             [io.pedestal.log :as log]
             [common-labsoft.datomic.schema :as datomic.schema]
             [common-labsoft.protocols.config :as protocols.config]
-            [common-labsoft.protocols.datomic :as protocols.datomic]))
+            [common-labsoft.protocols.datomic :as protocols.datomic]
+            [clojure.string :as string]))
 
 (defn install-meta-schema! [conn]
   @(d/transact conn (concat datomic.schema/meta-schema
@@ -40,6 +41,9 @@
 
   (stop [this]
     (prn "Stopping Datomic....")
+    (when (string/starts-with? (:endpoint this) "datomic:mem:")
+      (prn "Deleting in memory database....")
+      (d/delete-database (:endpoint this)))
     (dissoc this :conn))
 
   protocols.datomic/Datomic

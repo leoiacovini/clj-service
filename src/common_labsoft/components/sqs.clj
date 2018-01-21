@@ -85,7 +85,7 @@
                                      :attributes {:ReceiveMessageWaitTimeSeconds 20}}))))
 
 (defn queue-config->queue [[qname qconf]]
-  [qname (assoc qconf :name name
+  [qname (assoc qconf :name qname
                       :url (find-or-create-queue! (name qname)))])
 
 (defn gen-queue-map [settings-map]

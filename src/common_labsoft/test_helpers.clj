@@ -9,7 +9,8 @@
             [common-labsoft.datomic.transform :as datomic.transform]
             [common-labsoft.components.datomic :as components.datomic]
             [common-labsoft.time :as time]
-            [common-labsoft.misc :as misc]))
+            [common-labsoft.misc :as misc]
+            [cheshire.core :as cheshire]))
 
 (defn mock-config [obj]
   (reify
@@ -26,10 +27,15 @@
        (d/with (map datomic.transform/transform-to-datomic entities))
        :db-after)))
 
-(defn request! [service method path & args]
-  (-> (apply response-for service method path args)
-      :body
-      (chesire/parse-string true)))
+(defn request!
+  ([service method path body]
+   (-> (response-for service method path :body (cheshire/generate-string body) :headers {"Content-Type" "application/json"})
+       :body
+       (chesire/parse-string true)))
+  ([service method path]
+   (-> (response-for service method path :headers {"Content-Type" "application/json"})
+       :body
+       (chesire/parse-string true))))
 
 (defmacro as-of [time & body]
   `(with-redefs [time/now (fn [] ~time)
@@ -58,4 +64,5 @@
            result# ~@body]
        (d/delete-database (:endpoint ~datomic-binding))
        (component/stop ~datomic-binding)
+       (d/release (datomic/conn ~datomic-binding))
        result#)))
