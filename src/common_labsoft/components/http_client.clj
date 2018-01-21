@@ -74,7 +74,7 @@
           valid-token (resolve-token this token service-name service-password)]
       (if (not= valid-token token)
         (swap! token (fn [t] (merge @t {:token valid-token}))))
-      (protocols.http-client/raw-req! this (merge {:headers {:authorization (str "Bearer " (:token @token))}} data))))
+      (protocols.http-client/raw-req! this (merge {:headers {:authorization (str "Bearer " @token)}} data))))
   )
 
 (defn new-http-client [config token]
