@@ -33,4 +33,3 @@
 
 (defn new-config [filename]
   (->Config filename))
-

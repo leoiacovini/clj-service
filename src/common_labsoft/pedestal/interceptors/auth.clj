@@ -20,11 +20,21 @@
               (assoc-in context [:request :identity] claim)
               context))})
 
-(defn allow? [& scopes]
+(defn allow-scopes? [& scopes]
   {:name  ::allow
    :enter (fn [context]
-            (if (-> (get-in context [:request :identity :scopes])
+            (if (-> (get-in context [:request :identity :token/scopes])
                     (allowed-scope? scopes))
+              context
+              (do
+                (log/error :log :forbidden-access)
+                (exception/forbidden! {}))))})
+
+(defn allow-types? [& types]
+  {:name  ::allow
+   :enter (fn [context]
+            (if (-> (get-in context [:request :identity :token/type])
+                    (allowed-scope? types))
               context
               (do
                 (log/error :log :forbidden-access)

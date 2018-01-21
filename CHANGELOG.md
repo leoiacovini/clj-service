@@ -1,5 +1,11 @@
 # Change Log
 
+### [0.6.0-SNAPSHOT]
+- Several improvements to time and datomic schema handling
+
+### [0.5.0-SNAPSHOT]
+- Move system definition to outside of common-labsoft
+
 ### [0.4.1-SNAPSHOT]
 - Improvements and small fixes
 

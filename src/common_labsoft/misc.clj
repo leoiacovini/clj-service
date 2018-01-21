@@ -1,13 +1,15 @@
 (ns common-labsoft.misc
   (:require [clojure.string :as str]
             [clojure.walk :as walk]
-            [puget.printer :as puget])
+            [puget.printer :as puget]
+            [datomic.api :as d])
   (:import (java.util UUID)))
 
 (def custom-color "\033[37;1;45m\033[1m")
 (def no-color "\033[0m")
 
 (defn uuid [] (UUID/randomUUID))
+(defn squuid [] (d/squuid))
 
 (defn map-vals [f m] (into {} (map (fn [[k v]] [k (f v)]) m)))
 
@@ -41,7 +43,7 @@
                                            :map-delimiter  ""}))]
     (subs str 0 (dec (count str)))))
 
-(defmacro debug [form]
+(defn debug [form]
   `(let [res# ~form]
      (println
        (with-color " debug ")

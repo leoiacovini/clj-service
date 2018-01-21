@@ -1,14 +1,19 @@
-(defproject labsoft-2018/common-labsoft "0.4.1-SNAPSHOT"
+(defproject labsoft-2018/common-labsoft "0.8.0-SNAPSHOT"
   :description "common code for labsoft 2 microservices"
   :url ""
   :license {}
+  :repositories {"my.datomic.com" {:url "https://my.datomic.com/repo"
+                                   :username :env/datomic_username
+                                   :password :env/datomic_password}}
   :deploy-repositories [["clojars" {:url      "https://clojars.org/repo"
                                     :username :env/clojars_username
                                     :password :env/clojars_password}]]
+  :injections [(require 'common-labsoft.misc)
+               (require 'common-labsoft.time)]
   :plugins [[lein-midje "3.2.1"]]
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [clj-http "3.7.0"]
-                 [com.datomic/datomic-free "0.9.5651" :exclusions [org.slf4j/slf4j-nop]]
+                 [com.datomic/datomic-pro "0.9.5661" :exclusions [org.slf4j/slf4j-nop]]
                  [prismatic/schema "1.1.7"]
                  [cheshire "5.8.0"]
                  [org.clojure/core.async "0.4.474"]

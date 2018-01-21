@@ -1,20 +1,21 @@
 (ns common-labsoft.datomic.api
   (:require [datomic.api :as d]
             [common-labsoft.protocols.datomic :as protocols.datomic]
+            [common-labsoft.datomic.transform :as datomic.transform]
             [schema.core :as s]
             [common-labsoft.exception :as exception]))
 
 (defn db [datomic] (protocols.datomic/db datomic))
 (defn conn [datomic] (protocols.datomic/connection datomic))
 
-(defn export-entity
-  [entity]
+(defn extract-entity [entity]
   (clojure.walk/prewalk
-    (fn [x]
-      (if (instance? datomic.query.EntityMap x)
-        (into {} x)
-        x))
-    entity))
+    (fn [x] (if (instance? datomic.query.EntityMap x) (into {} x) x)) entity))
+
+(defn export-entity
+  [entity db]
+  (-> (extract-entity entity)
+      (datomic.transform/transform-from-datomic db)))
 
 (defn assert-id! [id-key entity]
   (when-not (get entity id-key)
@@ -30,7 +31,8 @@
     (when (< 1 (count (first result))) (exception/server-error! {:assert-error :more-than-one-result
                                                                  :query        query
                                                                  :args         args}))
-    (ffirst result)))
+    (some-> (d/entity db (ffirst result))
+            (export-entity db))))
 
 (defn lookup [id-key id db]
   (query-single! '{:find  [?e]
@@ -43,14 +45,17 @@
                                                    :id      id})))
 
 (defn insert! [id-key entity datomic]
-  (let [prepared-entity (update entity id-key #(or % (d/squuid)))
+  (let [prepared-entity (-> (update entity id-key #(or % (d/squuid)))
+                            datomic.transform/transform-to-datomic)
         {:keys [db-after]} @(d/transact (conn datomic) [prepared-entity])]
     (lookup! id-key (get prepared-entity id-key) db-after)))
 
 (defn update! [id-key entity datomic]
   (assert-id! id-key entity)
-  (let [prepared-entity (assoc entity :db/id [id-key (get entity id-key)])]
-    @(d/transact (conn datomic) [prepared-entity])))
+  (let [prepared-entity (-> (assoc entity :db/id [id-key (get entity id-key)])
+                            datomic.transform/transform-to-datomic)
+        {:keys [db-after]} @(d/transact (conn datomic) [prepared-entity])]
+    (lookup! id-key (get prepared-entity id-key) db-after)))
 
 (defn retract! [id-key entity datomic]
   (assert-id! id-key entity)
@@ -58,4 +63,4 @@
 
 (defn entities [query db & args]
   (let [result (apply d/q query db args)]
-    (mapv (fn [[eid]] (d/entity db eid)) result)))
+    (mapv (fn [[eid]] (export-entity (d/entity db eid) db)) result)))

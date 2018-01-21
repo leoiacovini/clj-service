@@ -16,5 +16,8 @@
         "all-customers": "/customers"
       }
     }
+  },
+  "sqs": {
+    "endpoint": "http://localhost:4576"
   }
 }
