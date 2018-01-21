@@ -5,13 +5,9 @@
             [clj-http.client :as client]
             [cheshire.core :as cheshire]))
 
-
-
 (defn- resolve-replace-map
   [template-str replace-map]
   (reduce-kv (fn [s k v] (clojure.string/replace s (str k) (str v))) template-str replace-map))
-
-
 
 (defn render-route
   "Resolves to a full url"
@@ -41,7 +37,7 @@
           (client/post {:form-params auth-payload :content-type :json})
           (:body)
           (cheshire/parse-string true)
-          (:token)))))
+          (:token/jwt)))))
 
 ;; Transform methods: receives and returns request's data.
 (defn transform-url
@@ -58,23 +54,29 @@
         (merge (dissoc data :replace-map :endpoint :host) {:url (render-route hosts service endpoint replace-map)})
         data))))
 
-(defn- transform-method
+(defn transform-method
   "Transforms request's method"
   [data method]
   (merge data {:method method}))
 
 (defrecord HttpClient
-  [config token] ;"This token is a atom with keys :record :content :token"
+  [config token]
   protocols.http-client/HttpClient
   (get-hosts [this] (protocols.config/get! config :services))
   (raw-req! [this data] (client/request data))
-  (authd-req! [this data]
+  (authd-req! [this data transform]
     (let [service-name (protocols.config/get! config :service-name)
           service-password (protocols.config/get! config :service-password)
           valid-token (resolve-token this token service-name service-password)]
-      (if (not= valid-token token)
-        (swap! token (fn [t] (merge @t {:token valid-token}))))
-      (protocols.http-client/raw-req! this (merge {:headers {:authorization (str "Bearer " @token)}} data))))
+      (if (not= valid-token @token)
+        (swap! token (fn [t] (atom valid-token))))
+      (protocols.http-client/raw-req! this (transform (merge {:headers {:authorization @token}} data)))))
+  (authd-req! [this data] (protocols.http-client/authd-req! this data identity))
+  (authd-get! [this data] (protocols.http-client/authd-req! this data (fn [req] (transform-method req :get))))
+  (authd-post! [this data] (protocols.http-client/authd-req! this data (fn [req] (transform-method req :post))))
+  (authd-patch! [this data] (protocols.http-client/authd-req! this data (fn [req] (transform-method req :patch))))
+  (authd-delete! [this data] (protocols.http-client/authd-req! this data (fn [req] (transform-method req :delete))))
+  (authd-put! [this data] (protocols.http-client/authd-req! this data (fn [req] (transform-method req :put))))
   )
 
 (defn new-http-client [config token]
