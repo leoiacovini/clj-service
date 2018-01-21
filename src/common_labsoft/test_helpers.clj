@@ -5,12 +5,15 @@
             [io.pedestal.test :refer [response-for]]
             [cheshire.core :as chesire]
             [com.stuartsierra.component :as component]
+            [io.pedestal.http :as http]
             [datomic.api :as d]
             [common-labsoft.datomic.transform :as datomic.transform]
             [common-labsoft.components.datomic :as components.datomic]
             [common-labsoft.time :as time]
             [common-labsoft.misc :as misc]
             [cheshire.core :as cheshire]))
+
+(defonce ^:private service-fn (atom nil))
 
 (defn mock-config [obj]
   (reify
@@ -66,3 +69,16 @@
        (component/stop ~datomic-binding)
        (d/release (datomic/conn ~datomic-binding))
        result#)))
+
+(defn test-service
+  "Return a service-fn for use with Pedestal's `response-for` test helper."
+  [restart-fn]
+  (let [system (restart-fn)]
+    (reset! service-fn (::http/service-fn (-> system :pedestal :service)))))
+
+(defmacro with-service [[start-fn stop-fn] [system-binding service-binding] & body]
+  `(let [~system-binding (~start-fn)
+         ~service-binding (::http/service-fn (-> ~system-binding :pedestal :service))
+         result# (do ~@body)]
+     (~stop-fn)
+     result#))
