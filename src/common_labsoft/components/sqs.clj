@@ -5,6 +5,7 @@
             [io.pedestal.log :as log]
             [common-labsoft.misc :as misc]
             [common-labsoft.time]
+            [common-labsoft.adapt :as adapt]
             [common-labsoft.protocols.sqs :as protocols.sqs]
             [com.stuartsierra.component :as component]
             [common-labsoft.schema :as schema]
@@ -16,14 +17,7 @@
            (map #(assoc % :queue-url (:url queue)))))
 
 (defn parse-message [message schema]
-  (-> message
-      :body
-      (cheshire/parse-string true)
-      (schema/coerce-if schema)))
-
-(defn serialize-message [message schema]
-  (-> (schema/coerce-if message schema)
-      (cheshire/generate-string message)))
+  (-> message :body (adapt/from-json schema)))
 
 (defn fetch-message! [endpoint queue queue-channel]
   (async/go-loop []
@@ -95,7 +89,7 @@
 
 (defn produce! [{endpoint :endpoint} queue {message :message schema :schema}]
   (if (is-producer? queue)
-    (sqs/send-message {:endpoint endpoint} (:url queue) (serialize-message message schema))
+    (sqs/send-message {:endpoint endpoint} (:url queue) (adapt/to-json message schema))
     (log/error :error :producing-to-non-producer-queue :queue queue)))
 
 (defrecord SQS [config queues-settings]

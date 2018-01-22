@@ -5,10 +5,26 @@
             [common-labsoft.time :as time])
   (:import (schema.core EnumSchema)))
 
+(defn maybe [f & args] (try (apply f args) (catch Exception _ nil)))
+
+(defn str->long [v]
+  (Long/parseLong v))
+
+(defn coerce-long [v]
+  (or (maybe long v) (maybe str->long v) v))
+
+(defn coerce-str [v]
+  (if (keyword? v)
+    (str (namespace v) "/" (name v))
+    (str v)))
+
 (def time-matchers {time/LocalDate     time/coerce-to-local-date
                     time/LocalDateTime time/coerce-to-local-date-time})
+(def custom-matchers {s/Str coerce-str
+                      s/Int coerce-long})
 
 (def internalize-matchers (coerce/first-matcher [time-matchers
+                                                 custom-matchers
                                                  coerce/json-coercion-matcher]))
 
 (defn coerce [value schema]
