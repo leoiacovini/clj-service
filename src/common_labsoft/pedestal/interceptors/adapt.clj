@@ -9,7 +9,6 @@
 
 (defn accepted-type
   [context]
-  (prn (get-in context [:request :accept :field]))
   (get-in context [:request :accept :field] "application/json"))
 
 (defn transform-content

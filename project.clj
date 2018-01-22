@@ -27,4 +27,5 @@
                  [org.slf4j/slf4j-api "1.7.22"]
                  [mvxcvi/puget "1.0.2"]
                  [amazonica "0.3.117"]
+                 [nubank/matcher-combinators "0.1.4-SNAPSHOT"]
                  [midje "1.9.1"]])
