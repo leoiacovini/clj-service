@@ -50,3 +50,15 @@
 
 (cheshire.generate/add-encoder LocalDate (fn [val writer]
                                            (cheshire.generate/encode-str (str val) writer)))
+
+(defmethod print-dup LocalDateTime [datetime out]
+  (.write out (str "#time/time \"" datetime \")))
+
+(defmethod print-method LocalDateTime [datetime out]
+  (.write out (str "#time/time \"" datetime \")))
+
+(defmethod print-dup LocalDate [date out]
+  (.write out (str "#time/date \"" date \")))
+
+(defmethod print-method LocalDate [date out]
+  (.write out (str "#time/date \"" date \")))

@@ -64,7 +64,7 @@
      (let [~datomic-binding (new-mock-datomic ~datomic-settings)
            _# (transact-entities ~datomic-binding ~entities)
            ~db-binding (datomic/db ~datomic-binding)
-           result# ~@body]
+           result# (do ~@body)]
        (d/delete-database (:endpoint ~datomic-binding))
        (component/stop ~datomic-binding)
        (d/release (datomic/conn ~datomic-binding))
