@@ -2,12 +2,10 @@
   (:require [midje.sweet :refer :all]
             [com.stuartsierra.component :as component]
             [common-labsoft.components.http-client :as components.http-client]
-
             [common-labsoft.components.s3-client :as components.s3-client]
             [common-labsoft.protocols.http-client :as protocols.http-client]
             [common-labsoft.components.config :as config]
-            [common-labsoft.components.token :as token]
-            [clj-http.client :as client]))
+            [common-labsoft.components.token :as components.token]))
 
 (def test-hosts {:customers { :host       "https://customers.labsoft.host"
                               :endpoints { :one-customer "/customers/:id"
@@ -19,11 +17,9 @@
 
 (def config (component/start (config/new-config "test_config.json")))
 (def s3 (component/start (components.s3-client/map->S3Client {:bucket-config-key :s3-auth :config config})))
-(def http (components.http-client/new-http-client config (atom {}) s3))              ;; TODO: fix
+(def token (component/start (components.token/map->Token {:config config :s3-auth s3})))
+(def http (component/start (components.http-client/map->HttpClient {:config config :token token})))
 
-(fact "get-hosts must returns map with services hosts and endpoints"
-      (protocols.http-client/get-hosts http) => test-hosts)
-;
 (fact "when rendering routes"
       (fact "create a full url even without replace-map"
             (components.http-client/render-route test-hosts :customers :all-customers) => "https://customers.labsoft.host/customers")

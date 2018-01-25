@@ -2,10 +2,8 @@
   (:require [common-labsoft.protocols.config :as protocols.config]
             [common-labsoft.protocols.http-client :as protocols.http-client]
             [common-labsoft.protocols.token :as protocols.token]
-            [common-labsoft.components.token :as components.token]
             [common-labsoft.adapt :as adapt]
             [clj-http.client :as client]
-            [cheshire.core :as cheshire]
             [com.stuartsierra.component :as component]))
 
 (defn- resolve-replace-map
@@ -15,11 +13,11 @@
 (defn render-route
   "Resolves to a full url"
   ([hosts service-host endpoint replace-map]
-  (let [service (get hosts service-host)
-        endpoints (get service :endpoints)]
-    (resolve-replace-map (str (get service :host) (get endpoints endpoint)) replace-map)))
+   (let [service (get hosts service-host)
+         endpoints (get service :endpoints)]
+     (resolve-replace-map (str (get service :host) (get endpoints endpoint)) replace-map)))
   ([hosts service-host endpoint]
-    (render-route hosts service-host endpoint {})))
+   (render-route hosts service-host endpoint {})))
 
 (defn render-keyworded-url
   "Resolves :customers/one-customer to its url"
@@ -29,22 +27,28 @@
     (render-route hosts service-host endpoint replace-map)))
 
 (defn verify-token [token token-component]
-  (when (protocols.token/verify token-component token)
+  (when (and token (protocols.token/verify token-component token))
     token))
+
+(defn request-new-token [config auth-payload]
+  (-> (protocols.config/get! config :services)
+      (render-route :auth :service-token)
+      (client/post {:form-params  auth-payload
+                    :content-type :json})
+      :body
+      adapt/from-json
+      :token/jwt))
+
+(defn auth-payload [name pass]
+  {:auth/service name :auth/password pass})
 
 (defn resolve-token
   "Receives a token. If its valid, returns it. If its not, generate a valid token and return it."
-  [token-component token* service-name service-password]
-  (let [auth-payload {:auth/service service-name :auth/password service-password}
-        config (:config token-component)
-        services (protocols.config/get! config :services)]
-    (or (verify-token @token* token-component)
-        (-> (render-route services :auth :service-token)
-            (client/post {:form-params auth-payload :content-type :json})
-            :body
-            (cheshire/parse-string true)
-            :token/jwt
-            (->> (reset! token*))))))
+  [{:keys [service-name service-password service-token token config]}]
+  (or (verify-token @service-token token)
+      (->> (auth-payload service-name service-password)
+           (request-new-token config)
+           (reset! service-token))))
 
 ;; Transform methods: receives and returns request's data.
 (defn transform-url
@@ -62,8 +66,7 @@
   (let [json-or-edn (if (= (get-in resp [:headers "Content-Type"]) "application/json")
                       :json
                       :edn)]
-    (adapt/internalize json-or-edn (:body resp) (:schema-resp req)))
-  )
+    (adapt/internalize json-or-edn (:body resp) (:schema-resp req))))
 
 (defn externalize-request
   [{:keys [content-type body schema-req] :as req}]
@@ -76,25 +79,26 @@
       externalize-request
       (transform-url hosts)))
 
-(defrecord HttpClient
-  [config token s3-auth]
+(defrecord HttpClient [config token]
+  component/Lifecycle
+  (start [this]
+    (assoc this :service-token (atom nil)
+                :service-name (protocols.config/get! config :service-name)
+                :service-password (protocols.config/get! config :service-password)))
+
+  (stop [this]
+    (dissoc this :service-token :service-name :service-password))
+
   protocols.http-client/HttpClient
-  (get-hosts [this] (protocols.config/get! config :services))
   (raw-req! [this data] (client/request data))
   (authd-req! [this data]
-    (let [service-name (protocols.config/get! config :service-name)
-          service-password (protocols.config/get! config :service-password)
-          token-component (component/start (components.token/map->Token {:config config :s3-auth s3-auth}))
-          req (->  (resolve-token token-component token service-name service-password)
-                   (build-req data (protocols.http-client/get-hosts this)))]
+    (let [req (-> (resolve-token this)
+                  (build-req data (protocols.config/get! config :services)))]
       (->> (protocols.http-client/raw-req! this req)
            (internalize-response req)))))
 
-
 (defn new-http-client
-  ([config token s3-auth]
-    (map->HttpClient {:config config :token token :s3-auth s3-auth}))
-  ([token]
-   (map->HttpClient {:token token}))
+  ([config]
+   (map->HttpClient {:config config}))
   ([]
-   (map->HttpClient {:token (atom nil)})))
+   (map->HttpClient {})))
