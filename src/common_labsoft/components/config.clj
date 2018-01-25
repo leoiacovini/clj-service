@@ -12,7 +12,7 @@
 
   (get! [this k]
     (or (protocols.config/get-maybe this k)
-        (throw (ex-info "ConfigKeyNotFound" {:type :not-found}))))
+        (throw (ex-info "ConfigKeyNotFound" {:type :not-found :key k}))))
 
   (get-in-maybe [this ks]
     (get-in (:conf this) ks))
