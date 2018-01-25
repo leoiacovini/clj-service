@@ -44,7 +44,9 @@
       (jwt/unsign token (:pub-key this) {:alg :rs256})
       (catch Exception _ nil)))
   (verify [this token]
-    (protocols.token/decode this token)))
+    (try
+      (protocols.token/decode this token)
+      (catch Exception _ false))))
 
 (defn new-token []
   (map->Token {}))

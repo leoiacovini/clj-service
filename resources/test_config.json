@@ -1,5 +1,7 @@
 {
   "env": "dev",
+  "service-name": "test-service",
+  "service-password": "password",
   "datomic-endpoint": "datomic:mem://test-db",
   "port": 8080,
   "s3-auth": {
@@ -8,6 +10,27 @@
   },
   "pub-key-path": "test/pubkey.pem",
   "priv-key-path": "test/privkey.pem",
+  "services": {
+    "customers": {
+      "host": "https://customers.labsoft.host",
+      "endpoints": {
+        "one-customer": "/customers/:id",
+        "all-customers": "/customers"
+      }
+    },
+    "auth": {
+      "host": "https://putsreq.com",
+      "endpoints": {
+        "service-token": "/nMNuwB4x0EFEsGdBxkpv"
+      }
+    },
+    "httpbin": {
+      "host": "http://httpbin.org",
+      "endpoints": {
+        "get": "/get"
+      }
+    }
+  },
   "sqs": {
     "endpoint": "http://localhost:4576"
   }
