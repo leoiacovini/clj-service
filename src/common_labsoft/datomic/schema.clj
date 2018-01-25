@@ -52,14 +52,15 @@
     (true? unique) :db.unique/value
     :else nil))
 
-(defn- field->attribute [name {:keys [schema index doc] :as settings}]
+(defn- field->attribute [name {:keys [schema index doc component] :as settings}]
   (-> {:db/ident       name
        :db/valueType   (schema->datomic-value schema)
        :db/cardinality (schema->datomic-cardinality schema)
        :meta/type      (schema->meta-schema schema)}
       (misc/assoc-if :db/unique (uniqueness settings))
       (misc/assoc-if :db/doc doc)
-      (misc/assoc-if :db/index index)))
+      (misc/assoc-if :db/index index)
+      (misc/assoc-if :db/isComponent component)))
 
 (defn create-schema [skeleton]
   (mapv (fn [[k v]] (field->attribute k v)) skeleton))
