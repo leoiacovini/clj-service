@@ -1,14 +1,12 @@
 (ns common-labsoft.components.sqs
   (:require [clojure.core.async :as async]
             [amazonica.aws.sqs :as sqs]
-            [cheshire.core :as cheshire]
             [io.pedestal.log :as log]
             [common-labsoft.misc :as misc]
             [common-labsoft.time]
             [common-labsoft.adapt :as adapt]
             [common-labsoft.protocols.sqs :as protocols.sqs]
             [com.stuartsierra.component :as component]
-            [common-labsoft.schema :as schema]
             [common-labsoft.protocols.config :as protocols.config]))
 
 (defn receive-messages! [endpoint queue]
@@ -25,13 +23,13 @@
       (async/>! queue-channel message))
     (recur)))
 
-(defn handle-message! [endpoint {handler-fn :handler schema :schema :as queue} queue-channel]
+(defn handle-message! [endpoint webapp {handler-fn :handler schema :schema :as queue} queue-channel]
   (async/go-loop []
     (when-let [message (async/<! queue-channel)]
       (try
         (some-> message
                 (parse-message schema)
-                handler-fn)
+                (handler-fn webapp))
         (sqs/delete-message {:endpoint endpoint} message)
         (catch Throwable e
           (log/error :exception e :error :receving-message :queue queue :message message))))
@@ -52,15 +50,15 @@
   (and (is-consumer? queue)
        (some? (:chan queue))))
 
-(defn create-consumer-loop! [endpoint queue]
+(defn create-consumer-loop! [endpoint webapp queue]
   (let [queue-channel (async/chan 50)]
     (fetch-message! endpoint queue queue-channel)
-    (handle-message! endpoint queue queue-channel)
+    (handle-message! endpoint webapp queue queue-channel)
     (assoc queue :chan queue-channel)))
 
-(defn init-async-consumer! [endpoint queue]
+(defn init-async-consumer! [endpoint webapp queue]
   (if (is-consumer? queue)
-    (create-consumer-loop! endpoint queue)
+    (create-consumer-loop! endpoint webapp queue)
     queue))
 
 (defn stop-async-consumer! [queue]
@@ -68,8 +66,8 @@
     (async/close! (:chan queue)))
   (dissoc! queue :chan))
 
-(defn start-consumers! [{:keys [queues endpoint] :as this}]
-  (update this :queues #(misc/map-vals (partial init-async-consumer! endpoint) %)))
+(defn start-consumers! [{:keys [endpoint webapp] :as this}]
+  (update this :queues #(misc/map-vals (partial init-async-consumer! endpoint webapp) %)))
 
 (defn stop-consumers! [queues]
   (misc/map-vals stop-async-consumer! queues))
@@ -92,21 +90,43 @@
     (sqs/send-message {:endpoint endpoint} (:url queue) (adapt/to-json message schema))
     (log/error :error :producing-to-non-producer-queue :queue queue)))
 
-(defrecord SQS [config queues-settings]
+(defrecord Consumer [config queues-settings webapp]
   component/Lifecycle
   (start [this]
-    (prn "Starting SQS Client component...")
+    (prn "Starting SQS Consumer...")
     (-> (assoc this :endpoint (protocols.config/get-in-maybe config [:sqs :endpoint]))
         (gen-queue-map)
-        (start-consumers!)))
+        protocols.sqs/start-consumers!))
 
   (stop [this]
-    (stop-consumers! (:queues this))
-    (dissoc this :queues))
+    (protocols.sqs/stop-consumers! this)
+    (dissoc this :queues :endpoint))
 
-  protocols.sqs/SQS
+  protocols.sqs/Consumer
+  (start-consumers! [this]
+    (start-consumers! this))
+
+  (stop-consumers! [this]
+    (stop-consumers! (:queues this))))
+
+(defrecord Producer [config queues-settings]
+  component/Lifecycle
+  (start [this]
+    (-> (assoc this :endpoint (protocols.config/get-in-maybe config [:sqs :endpoint]))
+        (gen-queue-map)))
+
+  (stop [this]
+    (dissoc this :queues :endpoint))
+
+  protocols.sqs/Producer
   (produce! [this produce-map]
     (produce! this (get-queue this produce-map) produce-map)))
 
-(defn new-sqs [queues-settings]
-  (map->SQS {:queues-settings queues-settings}))
+
+(defn new-consumer [queues-settings]
+  (map->Consumer {:queues-settings queues-settings}))
+
+(defn new-producer [queues-settings]
+  (map->Producer {:queues-settings queues-settings}))
+
+

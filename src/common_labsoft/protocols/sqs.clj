@@ -1,6 +1,11 @@
 (ns common-labsoft.protocols.sqs)
 
-(defprotocol SQS
+(defprotocol Producer
   (produce! [this produce-map]))
 
-(def ISQS (:on-interface SQS))
+(defprotocol Consumer
+  (start-consumers! [this])
+  (stop-consumers! [this]))
+
+(def IProducer (:on-interface Producer))
+(def IConsumer (:on-interface Consumer))
