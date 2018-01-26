@@ -5,7 +5,8 @@
             [common-labsoft.datomic.schema :as datomic.schema]
             [common-labsoft.protocols.config :as protocols.config]
             [common-labsoft.protocols.datomic :as protocols.datomic]
-            [clojure.string :as string]))
+            [clojure.string :as string]
+            [common-labsoft.exception :as exception]))
 
 (defn install-meta-schema! [conn]
   @(d/transact conn (concat datomic.schema/meta-schema
@@ -29,7 +30,9 @@
     (catch Exception e
       (log/error :component :datomic
                  :error :create-connection-failed
-                 :exception e))))
+                 :exception e)
+      (exception/server-error! {:datomic   :error-creating-connection
+                                :exception e}))))
 
 (defrecord Datomic [config settings conn]
   component/Lifecycle

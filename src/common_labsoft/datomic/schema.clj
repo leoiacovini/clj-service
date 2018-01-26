@@ -13,7 +13,7 @@
     (= schema s/Keyword) :db.type/keyword
     (= schema s/Bool) :db.type/boolean
     (= schema s/Uuid) :db.type/uuid
-    (instance? schema Associative) :db.type/ref
+    (instance? Associative schema) :db.type/ref
     (= schema time/LocalDate) :db.type/instant
     (= schema time/LocalDateTime) :db.type/instant))
 
@@ -25,7 +25,7 @@
     (= schema s/Keyword) :meta.type/keyword
     (= schema s/Bool) :meta.type/boolean
     (= schema s/Uuid) :meta.type/uuid
-    (instance? schema Associative) :meta.type/ref
+    (instance? Associative schema) :meta.type/ref
     (= schema time/LocalDateTime) :meta.type/local-date-time
     (= schema time/LocalDate) :meta.type/local-date))
 
