@@ -1,5 +1,6 @@
 (ns common-labsoft.pedestal.interceptors.schema
-  (:require [common-labsoft.schema :as schema]))
+  (:require [schema.core]
+            [common-labsoft.schema :as schema]))
 
 (defn coerce [schema]
   {:name  ::coerce

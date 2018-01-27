@@ -17,7 +17,6 @@
                  [prismatic/schema "1.1.7"]
                  [cheshire "5.8.0"]
                  [org.clojure/core.async "0.4.474"]
-                 [metosin/schema-tools "0.9.1"]
                  [buddy "2.0.0"]
                  [com.stuartsierra/component "0.3.2"]
                  [io.pedestal/pedestal.service "0.5.3"]
@@ -28,4 +27,6 @@
                  [mvxcvi/puget "1.0.2"]
                  [amazonica "0.3.117"]
                  [nubank/matcher-combinators "0.1.4-SNAPSHOT"]
-                 [midje "1.9.1"]])
+                 [midje "1.9.1"]]
+
+  :profiles {:uberjar {:aot :all}})
