@@ -18,14 +18,17 @@
   (log/error :log :forbidden-access)
   (exception/forbidden! {}))
 
+(defn verify-token [context]
+  (some->> context
+           :request
+           :headers
+           headers->token
+           (protocols.token/decode (token-component context))))
+
 (def auth
   {:name  ::auth
    :enter (fn [context]
-            (if-let [claim (some->> context
-                                    :request
-                                    :headers
-                                    headers->token
-                                    (protocols.token/decode (token-component context)))]
+            (if-let [claim (verify-token context)]
               (assoc-in context [:request :identity] claim)
               context))})
 

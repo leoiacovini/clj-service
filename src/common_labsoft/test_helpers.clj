@@ -43,7 +43,8 @@
 (defmacro as-of [time & body]
   `(with-redefs [time/now (fn [] ~time)
                  time/today (fn [] ~time)]
-     ~@body))
+     (do
+       ~@body)))
 
 (defn clean-datomic [dtm]
   (d/delete-database (:endpoint dtm))
@@ -82,3 +83,8 @@
          result# (do ~@body)]
      (~stop-fn)
      result#))
+
+(defmacro with-token [token & body]
+  `(with-redefs [common-labsoft.pedestal.interceptors.auth/verify-token (constantly token)]
+     (do
+       ~@body)))
