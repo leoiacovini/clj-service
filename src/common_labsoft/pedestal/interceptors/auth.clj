@@ -16,7 +16,7 @@
 
 (defn forbidden []
   (log/error :log :forbidden-access)
-  (exception/forbidden! {})) )
+  (exception/forbidden! {}))
 
 (def auth
   {:name  ::auth
@@ -35,7 +35,7 @@
             (if (-> (get-in context [:request :identity :token/scopes])
                     (allowed-scope? scopes))
               context
-              (forbidden))})
+              (forbidden)))})
 
 (defn allow-types? [& types]
   {:name  ::allow-types?
