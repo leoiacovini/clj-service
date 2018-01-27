@@ -7,6 +7,7 @@
             [com.stuartsierra.component :as component]
             [io.pedestal.http :as http]
             [datomic.api :as d]
+            [common-labsoft.pedestal.interceptors.auth]
             [common-labsoft.datomic.transform :as datomic.transform]
             [common-labsoft.components.datomic :as components.datomic]
             [common-labsoft.time :as time]
@@ -85,6 +86,6 @@
      result#))
 
 (defmacro with-token [token & body]
-  `(with-redefs [common-labsoft.pedestal.interceptors.auth/verify-token (constantly token)]
+  `(with-redefs [common-labsoft.pedestal.interceptors.auth/verify-token (constantly ~token)]
      (do
        ~@body)))
