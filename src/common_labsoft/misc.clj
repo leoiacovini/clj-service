@@ -11,6 +11,8 @@
 (defn uuid [] (UUID/randomUUID))
 (defn squuid [] (d/squuid))
 
+(defn str->uuid [s] (UUID/fromString s))
+
 (defn map-vals [f m] (into {} (map (fn [[k v]] [k (f v)]) m)))
 
 (defn map-keys [f m] (into {} (map (fn [[k v]] [(f k) v]) m)))

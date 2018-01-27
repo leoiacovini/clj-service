@@ -1,6 +1,7 @@
 (ns common-labsoft.pedestal.interceptors.adapt
   (:require [common-labsoft.adapt :as adapt]
-            [io.pedestal.http.content-negotiation :as conneg]))
+            [io.pedestal.http.content-negotiation :as conneg]
+            [common-labsoft.misc :as misc]))
 
 
 (def supported-types ["application/json" "application/edn" "text/plain" "text/html"])
@@ -32,3 +33,9 @@
            (if (get-in context [:response :headers "Content-Type"])
              context
              (update-in context [:response] coerce-to (accepted-type context))))})
+
+(defn path->uuid [path-id req-key]
+  {:name  ::path->uuid
+   :enter (fn [context]
+            (let [path-uuid (misc/str->uuid (get-in context [:request :path-params path-id]))]
+              (assoc-in context [:request req-key] path-uuid)))})
