@@ -10,7 +10,7 @@
                                     :password :env/clojars_password}]]
 
   :plugins [[lein-midje "3.2.1"]]
-  :dependencies [[org.clojure/clojure "1.8.0"]
+  :dependencies [[org.clojure/clojure "1.9.0"]
                  [clj-http "3.7.0"]
                  [com.datomic/datomic-pro "0.9.5661" :exclusions [org.slf4j/slf4j-nop]]
                  [prismatic/schema "1.1.7"]
