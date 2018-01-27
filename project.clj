@@ -8,13 +8,13 @@
   :deploy-repositories [["clojars" {:url      "https://clojars.org/repo"
                                     :username :env/clojars_username
                                     :password :env/clojars_password}]]
-  :injections [(require 'common-labsoft.misc)
-               (require 'common-labsoft.time)]
+
   :plugins [[lein-midje "3.2.1"]]
-  :dependencies [[org.clojure/clojure "1.9.0"]
+  :dependencies [[org.clojure/clojure "1.8.0"]
                  [clj-http "3.7.0"]
                  [com.datomic/datomic-pro "0.9.5661" :exclusions [org.slf4j/slf4j-nop]]
                  [prismatic/schema "1.1.7"]
+                 [metosin/schema-tools "0.9.1"]
                  [cheshire "5.8.0"]
                  [org.clojure/core.async "0.4.474"]
                  [buddy "2.0.0"]
@@ -29,4 +29,6 @@
                  [nubank/matcher-combinators "0.1.4-SNAPSHOT"]
                  [midje "1.9.1"]]
 
-  :profiles {:uberjar {:aot :all}})
+  :profiles {:uberjar {:aot :all}
+             :dev {:injections [(require 'common-labsoft.misc)
+                                (require 'common-labsoft.time)]}})
