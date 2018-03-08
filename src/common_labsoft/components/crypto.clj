@@ -5,9 +5,9 @@
 (defrecord Crypto [config]
   protocols.crypto/Crypto
   (bcrypt [this value]
-    (hashers/derive value {:alg :bcrypt+sha512}))
+    (hashers/derive value {:alg :bcrypt+sha512 :iterations 8}))
   (check [this encrypted attempt]
-    (hashers/check attempt encrypted {:limit :bcrypt+sha512})))
+    (hashers/check attempt encrypted {:limit :bcrypt+sha512 :iterations 8})))
 
 (defn new-crypto []
   (map->Crypto {}))
