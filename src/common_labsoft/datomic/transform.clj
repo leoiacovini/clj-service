@@ -20,6 +20,8 @@
     (case meta-type
       :meta.type/local-date-time (time/inst->local-date-time value)
       :meta.type/local-date (time/inst->local-date value)
+      :meta.type/bigdec (bigdec value)
+      :meta.type/bigint (bigint value)
       value)))
 
 (defn transform-to-datomic [data]

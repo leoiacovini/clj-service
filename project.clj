@@ -1,4 +1,4 @@
-(defproject labsoft-2018/common-labsoft "0.9.0-SNAPSHOT"
+(defproject labsoft-2018/common-labsoft "0.9.1-SNAPSHOT"
   :description "common code for labsoft 2 microservices"
   :url ""
   :license {}
@@ -25,7 +25,7 @@
                  [org.slf4j/log4j-over-slf4j "1.7.22"]
                  [org.slf4j/slf4j-api "1.7.22"]
                  [mvxcvi/puget "1.0.2"]
-                 [amazonica "0.3.117"]
+                 [amazonica "0.3.121"]
                  [nubank/matcher-combinators "0.1.4-SNAPSHOT"]
                  [midje "1.9.1"]]
 

@@ -9,6 +9,8 @@
   (cond
     (= schema s/Str) :db.type/string
     (= schema s/Int) :db.type/long
+    (= schema BigDecimal) :db.type/bigdec
+    (= schema BigInteger) :db.type/long
     (instance? EnumSchema schema) :db.type/ref
     (= schema s/Keyword) :db.type/keyword
     (= schema s/Bool) :db.type/boolean
@@ -21,6 +23,8 @@
   (cond
     (= schema s/Str) :meta.type/string
     (= schema s/Int) :meta.type/long
+    (= schema BigDecimal) :meta.type/bigdec
+    (= schema BigInteger) :meta.type/bigint
     (instance? EnumSchema schema) :meta.type/ref
     (= schema s/Keyword) :meta.type/keyword
     (= schema s/Bool) :meta.type/boolean
@@ -36,6 +40,8 @@
 
 (def meta-enums [{:db/ident :meta.type/string}
                  {:db/ident :meta.type/long}
+                 {:db/ident :meta.type/bigdec}
+                 {:db/ident :meta.type/bigint}
                  {:db/ident :meta.type/ref}
                  {:db/ident :meta.type/keyword}
                  {:db/ident :meta.type/boolean}

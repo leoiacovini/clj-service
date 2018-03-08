@@ -13,6 +13,6 @@
    :error (fn [context error]
             (log/error :log :response-error :exception error)
             (let [{:keys [type code message]} (ex-data error)]
-              (if type
+              (if (and type code)
                 (terminate-response code message context)
                 (terminate-response 500 "ServerError" context))))})

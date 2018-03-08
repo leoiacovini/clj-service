@@ -3,8 +3,10 @@
             [schema.core :as s]
             [common-labsoft.time :as time]
             [common-labsoft.misc]
-            [schema-tools.core :as schema-tools])
-  (:import [schema.core EnumSchema]))
+            [schema-tools.core :as schema-tools]
+            [common-labsoft.exception :as exception])
+  (:import [schema.core EnumSchema]
+           [clojure.lang ExceptionInfo]))
 
 (defn maybe [f & args] (try (apply f args) (catch Exception _ nil)))
 
@@ -19,17 +21,28 @@
     (str (namespace v) "/" (name v))
     (str v)))
 
+(defn coerce-bigdec [v]
+  (bigdec v))
+
+(defn coerce-bigint [v]
+  (bigint v))
+
 (def time-matchers {time/LocalDate     time/coerce-to-local-date
                     time/LocalDateTime time/coerce-to-local-date-time})
-(def custom-matchers {s/Str coerce-str
-                      s/Int coerce-long})
+(def custom-matchers {s/Str      coerce-str
+                      s/Int      coerce-long
+                      BigDecimal coerce-bigdec
+                      BigInteger coerce-bigint})
 
 (def internalize-matchers (coerce/first-matcher [time-matchers
                                                  custom-matchers
                                                  coerce/json-coercion-matcher]))
 
 (defn coerce [value schema]
-  (schema-tools/select-schema value schema internalize-matchers))
+  (try
+    (schema-tools/select-schema value schema internalize-matchers)
+    (catch ExceptionInfo e
+      (exception/bad-request! {:cause e :value value :schema schema :type :could-not-coerce}))))
 
 (defn coerce-if [value schema]
   (if (and schema value)
