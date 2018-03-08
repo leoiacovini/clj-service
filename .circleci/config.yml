@@ -60,7 +60,7 @@ jobs:
     working_directory: ~/repo
     steps:
       - checkout
-
+      - run: ssh -o StrictHostKeyChecking=no 2018-PCS2044-LAMBDA@vs-ssh.visualstudio.com
       - run: git push ssh://2018-PCS2044-LAMBDA@vs-ssh.visualstudio.com:22/_ssh/common-labsoft master
 
 workflows:
