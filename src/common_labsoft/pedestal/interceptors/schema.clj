@@ -5,12 +5,10 @@
 (defn coerce [schema]
   {:name  ::coerce
    :enter (fn [context]
-            (if-let [body (or (-> context :request :json-params)
-                              (-> context :request :edn-params)
-                              (-> context :request :transit-params))]
-              (do
-                (assoc-in context [:request :data] (schema/coerce body schema)))
-              context))})
+            (let [body (or (-> context :request :json-params)
+                           (-> context :request :edn-params)
+                           (-> context :request :transit-params))]
+              (assoc-in context [:request :data] (schema/coerce body schema))))})
 
 (def coerce-output
   {:name  ::coerce-output
