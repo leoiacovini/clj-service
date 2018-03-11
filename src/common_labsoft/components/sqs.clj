@@ -64,7 +64,7 @@
 (defn stop-async-consumer! [queue]
   (when (consumer-started? queue)
     (async/close! (:chan queue)))
-  (dissoc! queue :chan))
+  (dissoc queue :chan))
 
 (defn start-consumers! [{:keys [endpoint webapp] :as this}]
   (update this :queues #(misc/map-vals (partial init-async-consumer! endpoint webapp) %)))
