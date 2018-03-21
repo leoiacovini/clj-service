@@ -6,32 +6,36 @@
            [clojure.lang Associative]))
 
 (defn schema->datomic-value [schema]
-  (cond
-    (= schema s/Str) :db.type/string
-    (= schema s/Int) :db.type/long
-    (= schema BigDecimal) :db.type/bigdec
-    (= schema BigInteger) :db.type/long
-    (instance? EnumSchema schema) :db.type/ref
-    (= schema s/Keyword) :db.type/keyword
-    (= schema s/Bool) :db.type/boolean
-    (= schema s/Uuid) :db.type/uuid
-    (instance? Associative schema) :db.type/ref
-    (= schema time/LocalDate) :db.type/instant
-    (= schema time/LocalDateTime) :db.type/instant))
+  (if (set? schema)
+    (schema->datomic-value (first schema))
+    (cond
+      (= schema s/Str) :db.type/string
+      (= schema s/Int) :db.type/long
+      (= schema BigDecimal) :db.type/bigdec
+      (= schema BigInteger) :db.type/long
+      (instance? EnumSchema schema) :db.type/ref
+      (= schema s/Keyword) :db.type/keyword
+      (= schema s/Bool) :db.type/boolean
+      (= schema s/Uuid) :db.type/uuid
+      (instance? Associative schema) :db.type/ref
+      (= schema time/LocalDate) :db.type/instant
+      (= schema time/LocalDateTime) :db.type/instant)))
 
 (defn schema->meta-schema [schema]
-  (cond
-    (= schema s/Str) :meta.type/string
-    (= schema s/Int) :meta.type/long
-    (= schema BigDecimal) :meta.type/bigdec
-    (= schema BigInteger) :meta.type/bigint
-    (instance? EnumSchema schema) :meta.type/ref
-    (= schema s/Keyword) :meta.type/keyword
-    (= schema s/Bool) :meta.type/boolean
-    (= schema s/Uuid) :meta.type/uuid
-    (instance? Associative schema) :meta.type/ref
-    (= schema time/LocalDateTime) :meta.type/local-date-time
-    (= schema time/LocalDate) :meta.type/local-date))
+  (if (set? schema)
+    (schema->meta-schema (first schema))
+    (cond
+      (= schema s/Str) :meta.type/string
+      (= schema s/Int) :meta.type/long
+      (= schema BigDecimal) :meta.type/bigdec
+      (= schema BigInteger) :meta.type/bigint
+      (instance? EnumSchema schema) :meta.type/ref
+      (= schema s/Keyword) :meta.type/keyword
+      (= schema s/Bool) :meta.type/boolean
+      (= schema s/Uuid) :meta.type/uuid
+      (instance? Associative schema) :meta.type/ref
+      (= schema time/LocalDateTime) :meta.type/local-date-time
+      (= schema time/LocalDate) :meta.type/local-date)))
 
 (def meta-schema [{:db/ident       :meta/type
                    :db/valueType   :db.type/ref
