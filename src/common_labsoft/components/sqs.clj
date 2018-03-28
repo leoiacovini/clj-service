@@ -7,7 +7,8 @@
             [common-labsoft.adapt :as adapt]
             [common-labsoft.protocols.sqs :as protocols.sqs]
             [com.stuartsierra.component :as component]
-            [common-labsoft.protocols.config :as protocols.config]))
+            [common-labsoft.protocols.config :as protocols.config]
+            [common-labsoft.fault-tolerance :as fault-tolerance]))
 
 (defn receive-messages! [endpoint queue]
   (some->> (sqs/receive-message {:endpoint endpoint} (:url queue))
@@ -23,13 +24,17 @@
       (async/>! queue-channel message))
     (recur)))
 
+(defn handle-with-retries [message webapp handler]
+  (fault-tolerance/with-retries 3
+    (handler message webapp)))
+
 (defn handle-message! [endpoint webapp {handler-fn :handler schema :schema :as queue} queue-channel]
   (async/go-loop []
     (when-let [message (async/<! queue-channel)]
       (try
         (some-> message
                 (parse-message schema)
-                (handler-fn webapp))
+                (handle-with-retries webapp handler-fn))
         (sqs/delete-message {:endpoint endpoint} message)
         (catch Throwable e
           (log/error :exception e :error :receving-message :queue queue :message message))))

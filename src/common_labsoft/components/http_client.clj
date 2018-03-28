@@ -2,9 +2,11 @@
   (:require [common-labsoft.protocols.config :as protocols.config]
             [common-labsoft.protocols.http-client :as protocols.http-client]
             [common-labsoft.protocols.token :as protocols.token]
+            [common-labsoft.fault-tolerance :as fault-tolerance]
             [common-labsoft.adapt :as adapt]
             [clj-http.client :as client]
-            [com.stuartsierra.component :as component]))
+            [com.stuartsierra.component :as component]
+            [common-labsoft.exception :as exception]))
 
 (defn- resolve-replace-map
   [template-str replace-map]
@@ -90,7 +92,10 @@
     (dissoc this :service-token :service-name :service-password))
 
   protocols.http-client/HttpClient
-  (raw-req! [this data] (client/request data))
+  (raw-req! [this data]
+    (fault-tolerance/with-retries 3
+      (client/request data)))
+
   (authd-req! [this data]
     (let [req (-> (resolve-token this)
                   (build-req data (protocols.config/get! config :services)))]

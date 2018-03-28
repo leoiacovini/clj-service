@@ -16,9 +16,9 @@
                              :endpoints {:get "/get"}}})
 
 (def config (component/start (config/new-config "test_config.json")))
-(def s3 (component/start (components.s3-client/map->S3Client {:bucket-config-key :s3-auth :config config})))
-(def token (component/start (components.token/map->Token {:config config :s3-auth s3})))
-(def http (component/start (components.http-client/map->HttpClient {:config config :token token})))
+#_(def s3 (component/start (components.s3-client/map->S3Client {:bucket-config-key :s3-auth :config config})))
+#_(def token (component/start (components.token/map->Token {:config config :s3-auth s3})))
+(def http (component/start (components.http-client/map->HttpClient {:config config})))
 
 (fact "when rendering routes"
   (fact "create a full url even without replace-map"
