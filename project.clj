@@ -26,7 +26,7 @@
                  [org.slf4j/slf4j-api "1.7.22"]
                  [mvxcvi/puget "1.0.2"]
                  [amazonica "0.3.121"]
-                 [nubank/matcher-combinators "0.1.4-SNAPSHOT"]
+                 [nubank/matcher-combinators "0.2.4"]
                  [midje "1.9.1"]]
 
   :profiles {:uberjar {:aot :all}
