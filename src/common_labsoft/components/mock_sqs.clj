@@ -77,8 +77,15 @@
 (defn consume! [consumer queue message]
   (handle-message! consumer queue message))
 
+(defn get-produced-messages [producer qname]
+  (-> producer :produced-messages deref (get qname)))
+
+(defn get-consumed-messages [consumer qname]
+  (-> consumer :consumed-messages deref (get qname)))
+
 (defn new-mock-consumer [queues-settings]
   (map->Consumer {:queues-settings queues-settings}))
 
 (defn new-mock-producer [queues-settings]
   (map->Producer {:queues-settings queues-settings}))
+
