@@ -90,9 +90,9 @@
 (defn gen-queue-map [{:keys [queues-settings endpoint] :as this}]
   (assoc this :queues (into {} (map (partial queue-config->queue endpoint) queues-settings))))
 
-(defn produce! [{endpoint :endpoint} queue {message :message schema :schema}]
+(defn produce! [{endpoint :endpoint} queue {message :message}]
   (if (is-producer? queue)
-    (sqs/send-message {:endpoint endpoint} (:url queue) (adapt/to-json message schema))
+    (sqs/send-message {:endpoint endpoint} (:url queue) (adapt/to-json message (:schema queue)))
     (log/error :error :producing-to-non-producer-queue :queue queue)))
 
 (defrecord Consumer [config queues-settings webapp]
