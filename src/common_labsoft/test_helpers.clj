@@ -31,16 +31,6 @@
        (d/with (map datomic.transform/transform-to-datomic entities))
        :db-after)))
 
-(defn request!
-  ([service method path body]
-   (-> (response-for service method path :body (cheshire/generate-string body) :headers {"Content-Type" "application/json"})
-       :body
-       (chesire/parse-string true)))
-  ([service method path]
-   (-> (response-for service method path :headers {"Content-Type" "application/json"})
-       :body
-       (chesire/parse-string true))))
-
 (defmacro as-of [time & body]
   `(with-redefs [time/now   (fn [] ~time)
                  time/today (fn [] ~time)]
@@ -92,8 +82,13 @@
      (do
        ~@body)))
 
-(defmacro with-world [wname & body]
-  `(let [~wname (atom {})]
+(defn get-pedestal-service [system]
+  (::http/service-fn (-> system :pedestal :service)))
+
+(defmacro with-world [[wname restart-fn] & body]
+  `(let [system# (~restart-fn)
+         ~wname (atom {:system  system#
+                       :service (get-pedestal-service system#)})]
      (do ~@body)))
 
 (defn assoc-to-world [world key value]
@@ -101,3 +96,19 @@
 
 (defn get-in-world [world ks]
   (get-in @world ks))
+
+(defn get-service [world]
+  (get-in-world world [:service]))
+
+(defn get-system [world]
+  (get-in-world world [:system]))
+
+(defn request!
+  ([world method path body]
+   (-> (response-for (get-service world) method path :body (cheshire/generate-string body) :headers {"Content-Type" "application/json"})
+       :body
+       (chesire/parse-string true)))
+  ([world method path]
+   (-> (response-for (get-service world) method path :headers {"Content-Type" "application/json"})
+       :body
+       (chesire/parse-string true))))
