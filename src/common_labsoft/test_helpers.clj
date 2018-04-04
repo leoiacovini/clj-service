@@ -42,7 +42,7 @@
        (chesire/parse-string true))))
 
 (defmacro as-of [time & body]
-  `(with-redefs [time/now (fn [] ~time)
+  `(with-redefs [time/now   (fn [] ~time)
                  time/today (fn [] ~time)]
      (do
        ~@body)))
@@ -79,13 +79,25 @@
     (reset! service-fn (::http/service-fn (-> system :pedestal :service)))))
 
 (defmacro with-service [[start-fn stop-fn] [system-binding service-binding] & body]
-  `(let [~system-binding (~start-fn)
-         ~service-binding (::http/service-fn (-> ~system-binding :pedestal :service))
-         result# (do ~@body)]
-     (~stop-fn)
-     result#))
+  `(try
+     (let [~system-binding (~start-fn)
+           ~service-binding (::http/service-fn (-> ~system-binding :pedestal :service))
+           result# (do ~@body)]
+       result#)
+     (finally
+       (~stop-fn))))
 
 (defmacro with-token [token & body]
   `(with-redefs [common-labsoft.pedestal.interceptors.auth/verify-token (constantly ~token)]
      (do
        ~@body)))
+
+(defmacro with-world [wname & body]
+  `(let [~wname (atom {})]
+     (do ~@body)))
+
+(defn assoc-to-world [world key value]
+  (swap! world assoc key value))
+
+(defn get-in-world [world ks]
+  (get-in @world ks))
