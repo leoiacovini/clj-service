@@ -54,7 +54,7 @@
                  {:db/ident :meta.type/local-date-time}
                  {:db/ident :meta.type/local-date}])
 
-(defn- schema->datomic-cardinality [schema] (if (seq? schema) :db.cardinality/many :db.cardinality/one))
+(defn- schema->datomic-cardinality [schema] (if (set? schema) :db.cardinality/many :db.cardinality/one))
 
 (defn- uniqueness [{:keys [id unique]}]
   (cond
