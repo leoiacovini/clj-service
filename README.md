@@ -1,4 +1,4 @@
-# common-labsoft
+# clj-service
 
 A Clojure library designed to help building microservices for the LabSoft 2 course. 
 

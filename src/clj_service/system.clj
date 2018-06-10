@@ -1,4 +1,4 @@
-(ns common-labsoft.system
+(ns clj-service.system
   (:require [com.stuartsierra.component :as component]))
 
 (def system (atom nil))

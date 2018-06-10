@@ -1,3 +1,3 @@
-# Introduction to common-labsoft
+# Introduction to clj-service
 
 TODO: write [great documentation](http://jacobian.org/writing/what-to-write/)

@@ -1,8 +1,7 @@
-(ns common-labsoft.pedestal.interceptors.adapt
-  (:require [common-labsoft.adapt :as adapt]
+(ns clj-service.pedestal.interceptors.adapt
+  (:require [clj-service.adapt :as adapt]
             [io.pedestal.http.content-negotiation :as conneg]
-            [common-labsoft.misc :as misc]))
-
+            [clj-service.misc :as misc]))
 
 (def supported-types ["application/json" "application/edn" "text/plain" "text/html"])
 

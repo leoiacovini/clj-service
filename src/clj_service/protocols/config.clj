@@ -1,4 +1,4 @@
-(ns common-labsoft.protocols.config)
+(ns clj-service.protocols.config)
 
 (defprotocol Config
   (get! [this k])

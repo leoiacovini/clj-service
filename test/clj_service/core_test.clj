@@ -1,4 +1,4 @@
-(ns common-labsoft.core-test
+(ns clj-service.core-test
   (:require [midje.sweet :refer :all]))
 
 (fact "dump fact"

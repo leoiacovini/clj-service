@@ -1,3 +1,3 @@
-{misc/debug  common-labsoft.misc/debug
- time/time   common-labsoft.time/coerce-to-local-date-time
- time/date   common-labsoft.time/coerce-to-local-date}
+{misc/debug      clj-service.misc/debug
+ time/date-time  clj-service.time/coerce-to-local-date-time
+ time/local-date clj-service.time/coerce-to-local-date}

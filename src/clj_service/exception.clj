@@ -1,4 +1,4 @@
-(ns common-labsoft.exception)
+(ns clj-service.exception)
 
 (defn- throw-ex [name type code details] (throw (ex-info name (merge {:type type :code code :message name} details))))
 

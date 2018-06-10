@@ -1,4 +1,4 @@
-(ns common-labsoft.components.webapp
+(ns clj-service.components.webapp
   (:require [com.stuartsierra.component :as component]))
 
 (defrecord WebApp []

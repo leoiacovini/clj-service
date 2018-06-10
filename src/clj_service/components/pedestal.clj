@@ -1,8 +1,8 @@
-(ns common-labsoft.components.pedestal
+(ns clj-service.components.pedestal
   (:require [com.stuartsierra.component :as component]
             [io.pedestal.http :as http]
             [io.pedestal.http :as server]
-            [common-labsoft.protocols.config :as protocols.config]))
+            [clj-service.protocols.config :as protocols.config]))
 
 (defn base-service [routes port] {:env                     :prod
                                   ::http/routes            routes

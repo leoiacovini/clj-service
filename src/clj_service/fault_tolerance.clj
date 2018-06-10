@@ -1,4 +1,4 @@
-(ns common-labsoft.fault-tolerance)
+(ns clj-service.fault-tolerance)
 
 (defn try-times
   [n f]

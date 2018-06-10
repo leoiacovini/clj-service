@@ -1,6 +1,6 @@
-(ns common-labsoft.pedestal.interceptors.schema
+(ns clj-service.pedestal.interceptors.schema
   (:require [schema.core]
-            [common-labsoft.schema :as schema]))
+            [clj-service.schema :as schema]))
 
 (defn coerce [schema]
   {:name  ::coerce

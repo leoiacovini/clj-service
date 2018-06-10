@@ -1,15 +1,13 @@
-(ns common-labsoft.misc
+(ns clj-service.misc
   (:require [clojure.string :as str]
             [clojure.walk :as walk]
-            [puget.printer :as puget]
-            [datomic.api :as d])
+            [puget.printer :as puget])
   (:import (java.util UUID)))
 
 (def custom-color "\033[37;1;45m\033[1m")
 (def no-color "\033[0m")
 
 (defn uuid [] (UUID/randomUUID))
-(defn squuid [] (d/squuid))
 
 (defn str->uuid [s] (UUID/fromString s))
 

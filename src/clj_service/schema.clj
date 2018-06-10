@@ -1,10 +1,10 @@
-(ns common-labsoft.schema
+(ns clj-service.schema
   (:require [schema.coerce :as coerce]
             [schema.core :as s]
-            [common-labsoft.time :as time]
-            [common-labsoft.misc]
+            [clj-service.time :as time]
+            [clj-service.misc]
             [schema-tools.core :as schema-tools]
-            [common-labsoft.exception :as exception])
+            [clj-service.exception :as exception])
   (:import [schema.core EnumSchema]
            [clojure.lang ExceptionInfo]))
 

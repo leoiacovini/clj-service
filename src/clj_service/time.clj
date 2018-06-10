@@ -1,29 +1,28 @@
-(ns common-labsoft.time
+(ns clj-service.time
   (:require [schema.core :as s]
             [cheshire.custom]
             [cheshire.generate]
-            [clj-time.coerce :as time.coerce]
-            [clj-time.core :as time]
-            [clj-time.local :as time.local]))
+            [java-time])
+  (:import [java.io Writer]))
 
-(def LocalDateTime org.joda.time.DateTime)
-(def LocalDate org.joda.time.LocalDate)
+(def LocalDateTime java.time.LocalDateTime)
+(def LocalDate java.time.LocalDate)
 
 (s/defn coerce-to-local-date-time :- LocalDateTime
   [v]
-  (time.coerce/to-date-time v))
+  (java-time/local-date-time v))
 
 (s/defn coerce-to-local-date :- LocalDate
   [v]
-  (time.coerce/to-local-date v))
+  (java-time/local-date v))
 
 (s/defn local-date-time->inst :- java.util.Date
   [date-time :- LocalDateTime]
-  (time.coerce/to-date date-time))
+  (java-time/java-date date-time))
 
 (s/defn local-date->inst :- java.util.Date
   [date :- LocalDate]
-  (time.coerce/to-date date))
+  (java-time/java-date date))
 
 (s/defn inst->local-date :- LocalDate
   [date-time :- LocalDateTime]
@@ -35,15 +34,14 @@
 
 (s/defn str->local-date-time :- LocalDateTime
   [str :- s/Str]
-  (time.coerce/from-string str))
+  (coerce-to-local-date-time str))
 
 (s/defn str->local-date :- LocalDate
   [str :- s/Str]
-  (-> str str->local-date-time time.coerce/to-local-date))
+  (coerce-to-local-date str))
 
-(s/defn now :- LocalDateTime [] (time/now))
-(s/defn local-now :- LocalDateTime [] (time.local/local-now))
-(s/defn today :- LocalDate [] (time/today))
+(s/defn now :- LocalDateTime [] (java-time/local-date-time))
+(s/defn today :- LocalDate [] (java-time/local-date))
 
 (cheshire.generate/add-encoder LocalDateTime (fn [val writer]
                                                (cheshire.generate/encode-str (str val) writer)))
@@ -51,14 +49,14 @@
 (cheshire.generate/add-encoder LocalDate (fn [val writer]
                                            (cheshire.generate/encode-str (str val) writer)))
 
-(defmethod print-dup LocalDateTime [datetime out]
-  (.write out (str "#time/time \"" datetime \")))
+(defmethod print-dup LocalDateTime [datetime ^Writer out]
+  (.write out (str "#time/date-time \"" datetime \")))
 
-(defmethod print-method LocalDateTime [datetime out]
-  (.write out (str "#time/time \"" datetime \")))
+(defmethod print-method LocalDateTime [datetime ^Writer out]
+  (.write out (str "#time/date-time \"" datetime \")))
 
-(defmethod print-dup LocalDate [date out]
-  (.write out (str "#time/date \"" date \")))
+(defmethod print-dup LocalDate [date ^Writer out]
+  (.write out (str "#time/local-date \"" date \")))
 
-(defmethod print-method LocalDate [date out]
-  (.write out (str "#time/date \"" date \")))
+(defmethod print-method LocalDate [date ^Writer out]
+  (.write out (str "#time/local-date \"" date \")))

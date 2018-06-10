@@ -1,4 +1,4 @@
-(ns common-labsoft.pedestal.interceptors.error
+(ns clj-service.pedestal.interceptors.error
   (:require [io.pedestal.log :as log]
             [io.pedestal.interceptor.chain :as chain]
             [io.pedestal.http :as http]))

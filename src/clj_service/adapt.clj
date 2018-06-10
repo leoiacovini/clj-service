@@ -1,8 +1,8 @@
-(ns common-labsoft.adapt
-  (:require [common-labsoft.time]
+(ns clj-service.adapt
+  (:require [clj-service.time]
             [schema.core :as s]
             [cheshire.core :as cheshire]
-            [common-labsoft.schema :as schema]))
+            [clj-service.schema :as schema]))
 
 (defmulti externalize (fn [format & args] format))
 
