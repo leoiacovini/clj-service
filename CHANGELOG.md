@@ -1,5 +1,8 @@
 # Change Log
 
+### [1.0.0]
+- First clj-service release
+
 ### [0.6.0-SNAPSHOT]
 - Several improvements to time and datomic schema handling
 
