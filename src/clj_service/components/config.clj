@@ -7,7 +7,7 @@
 (s/defrecord Config [config-name :- s/Str]
   component/Lifecycle
   (start [this]
-    (assoc this :config (aero/read-config config-name)))
+    (assoc this :config (aero/read-config (clojure.java.io/resource config-name))))
 
   (stop [this]
     (dissoc this :config))
