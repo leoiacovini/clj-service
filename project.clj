@@ -1,5 +1,8 @@
 (defproject leoiacovini/clj-service "1.0.0"
   :description "Common code for creating Clojure services using pedestal"
+  :license {:name         "MIT"
+            :distribution :repo}
+  :url "https://github.com.br/leoiacovini/clj-service"
   :plugins [[lein-midje "3.2.1"]]
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [clojure.java-time "0.3.2"]
