@@ -9,6 +9,7 @@
                  [aero "1.1.3"]
                  [prismatic/schema "1.1.9"]
                  [metosin/schema-tools "0.10.3"]
+                 [buddy "2.0.0"]
                  [cheshire "5.8.0"]
                  [com.stuartsierra/component "0.3.2"]
                  [io.pedestal/pedestal.service "0.5.3"]
