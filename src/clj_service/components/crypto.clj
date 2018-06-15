@@ -42,7 +42,9 @@
     (jwt/sign value (:secret this) {:alg :hs256}))
 
   (jwt-decode [this value validate]
-    (jwt/unsign value (:secret this) {:alg :hs256 :skip-validation (not validate)}))
+    (try
+      (jwt/unsign value (:secret this) {:alg :hs256 :skip-validation (not validate)})
+      (catch Exception _ nil)))
 
   (jwt-decode [this value]
     (protocols.crypto/jwt-decode this value true))
@@ -51,7 +53,9 @@
     (jwt/encrypt value (:key this) {:alg :dir :enc :a128cbc-hs256}))
 
   (jwt-decrypt [this value validate]
-    (jwt/decrypt value (:key this) {:alg :dir :enc :a128cbc-hs256 :skip-validation (not validate)}))
+    (try
+      (jwt/decrypt value (:key this) {:alg :dir :enc :a128cbc-hs256 :skip-validation (not validate)})
+      (catch Exception _ nil)))
 
   (jwt-decrypt [this value]
     (protocols.crypto/jwt-decrypt this value true)))
