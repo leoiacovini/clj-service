@@ -1,6 +1,6 @@
 (ns clj-service.exception)
 
-(defn- throw-ex [name type code details] (throw (ex-info name (merge {:type type :code code :message name} details))))
+(defn- throw-ex [name type code details] (throw (ex-info name (merge {:type type :code code :message name} details) (:exception details))))
 
 (defn bad-request! [details] (throw-ex "BadRequest" :bad-request 400 details))
 (defn unauthorized! [details] (throw-ex "Unauthorized" :unauthorized 401 details))
