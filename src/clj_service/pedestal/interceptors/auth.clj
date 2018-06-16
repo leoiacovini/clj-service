@@ -26,10 +26,13 @@
 (def auth
   {:name  ::auth
    :enter (fn [context]
-            (if-let [token (-> context :request :headers headers->token)]
-              (if-let [claim (protocols.crypto/jwt-decode (-> context :request :components :crypto) token)]
-                (assoc-in context [:request :identity] claim)
-                (forbidden))))})
+            (if-let [claim (some->> context
+                                    :request
+                                    :headers
+                                    headers->token
+                                    (protocols.crypto/jwt-decode (-> context :request :components :crypto)))]
+              (assoc-in context [:request :identity] claim)
+              (forbidden)))})
 
 (defn allow-scopes? [& scopes]
   {:name  ::allow-scopes?
