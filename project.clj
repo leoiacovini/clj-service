@@ -1,4 +1,4 @@
-(defproject leoiacovini/clj-service "1.1.2"
+(defproject leoiacovini/clj-service "1.1.3"
   :description "Common code for creating Clojure services using pedestal"
   :license {:name         "MIT"
             :distribution :repo}
