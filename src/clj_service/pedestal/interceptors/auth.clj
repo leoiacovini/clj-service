@@ -27,7 +27,7 @@
   {:name  ::auth
    :enter (fn [context]
             (if-let [claim (some->> context :request :headers headers->token)]
-              (assoc-in context [:request :identity] (or (protocols.crypto/jwt-decode claim (-> context :request :components :crypto))
+              (assoc-in context [:request :identity] (or (protocols.crypto/jwt-decode (-> context :request :components :crypto) claim)
                                                          (forbidden)))
               context))})
 
