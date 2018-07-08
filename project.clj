@@ -2,6 +2,8 @@
   :description "Common code for creating Clojure services using pedestal"
   :license {:name         "MIT"
             :distribution :repo}
+  :deploy-repositories [["releases" {:sign-releases false :url "https://clojars.org"}]
+                        ["snapshots" {:sign-releases false :url "https://clojars.org"}]]
   :url "https://github.com.br/leoiacovini/clj-service"
   :plugins [[lein-midje "3.2.1"]]
   :dependencies [[org.clojure/clojure "1.9.0"]
