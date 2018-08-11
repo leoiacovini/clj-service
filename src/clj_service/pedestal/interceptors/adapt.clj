@@ -1,7 +1,8 @@
 (ns clj-service.pedestal.interceptors.adapt
   (:require [clj-service.adapt :as adapt]
             [io.pedestal.http.content-negotiation :as conneg]
-            [clj-service.misc :as misc]))
+            [clj-service.misc :as misc]
+            [clj-service.schema :as schema]))
 
 (def supported-types ["application/json" "application/edn" "text/plain" "text/html"])
 
@@ -33,8 +34,20 @@
              context
              (update-in context [:response] coerce-to (accepted-type context))))})
 
-(defn path->uuid [path-id req-key]
-  {:name  ::path->uuid
-   :enter (fn [context]
-            (let [path-uuid (misc/str->uuid (get-in context [:request :path-params path-id]))]
-              (assoc-in context [:request req-key] path-uuid)))})
+(defn path->uuid
+  ([path-id]
+   (path->uuid path-id path-id))
+  ([path-id req-key]
+   {:name  ::path->uuid
+    :enter (fn [context]
+             (let [path-uuid (misc/str->uuid (get-in context [:request :path-params path-id]))]
+               (assoc-in context [:request req-key] path-uuid)))}))
+
+(defn coerce-path
+  ([path-key schema]
+   (coerce-path path-key schema path-key))
+  ([path-key schema req-key]
+   {:name  ::coerce-path
+    :enter (fn [context]
+             (let [path-val (schema/coerce (get-in context [:request :path-params path-key]) schema)]
+               (assoc-in context [:request req-key] path-val)))}))
