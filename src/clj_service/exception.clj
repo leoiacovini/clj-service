@@ -1,6 +1,9 @@
-(ns clj-service.exception)
+(ns clj-service.exception
+  (:require [io.pedestal.log :as log]))
 
-(defn- throw-ex [name type code details] (throw (ex-info name (merge {:type type :code code :message name} details) (:exception details))))
+(defn- throw-ex [name type code details]
+  (log/error :log :exception-error :type type :name name :code code :details details)
+  (throw (ex-info name (merge {:type type :code code :message name} details) (:exception details))))
 
 (defn bad-request! [details] (throw-ex "BadRequest" :bad-request 400 details))
 (defn unauthorized! [details] (throw-ex "Unauthorized" :unauthorized 401 details))

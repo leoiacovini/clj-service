@@ -11,7 +11,9 @@
 (def catch!
   {:name  ::catch
    :error (fn [context error]
-            (log/error :log :response-error :exception error)
+            (log/error
+              :log :response-error
+              :exception (or (:cause (ex-data error)) error))
             (let [{:keys [type code message]} (ex-data error)]
               (if (and type code)
                 (terminate-response code message context)
