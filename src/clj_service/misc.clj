@@ -16,15 +16,15 @@
 (defn map-keys [f m] (into {} (map (fn [[k v]] [(f k) v]) m)))
 
 (defn underscore-dash-keyword [keyw]
-  (let [_->-  (fn [v] (some-> v name (str/replace "_" "-")))
-        ns    (namespace keyw)
-        k     (name keyw)]
+  (let [_->- (fn [v] (some-> v name (str/replace "_" "-")))
+        ns   (namespace keyw)
+        k    (name keyw)]
     (keyword (_->- ns) (_->- k))))
 
 (defn dash-underscore-keyword [keyw]
-  (let [_->-  (fn [v] (some-> v name (str/replace "-" "_")))
-        ns    (namespace keyw)
-        k     (name keyw)]
+  (let [_->- (fn [v] (some-> v name (str/replace "-" "_")))
+        ns   (namespace keyw)
+        k    (name keyw)]
     (keyword (_->- ns) (_->- k))))
 
 (defn underscore->dash [m]
@@ -53,4 +53,21 @@
        (with-color "<="))
      res#))
 
-(defn assoc-if [m k v] (if v (assoc m k v) m))
+(defn assoc-in-if
+  [m ks v]
+  (if (some? v)
+    (assoc-in m ks v)
+    m))
+
+(defn assoc-if [m k v] (assoc-in-if m [k] v))
+
+(defn update-in-if
+  [m ks f]
+  (if-let [old-val (get-in m ks)]
+    (assoc-in-if m ks (f old-val))
+    m))
+
+(defn update-if [m k f] (update-in-if m [k] f))
+
+(defn find-first [s pred] (first (filter pred s)))
+
