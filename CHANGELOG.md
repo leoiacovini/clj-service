@@ -1,5 +1,8 @@
 # Change Log
 
+### [1.3.1]
+- Add options to pedestal component
+
 ### [1.0.0]
 - First clj-service release
 

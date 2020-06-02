@@ -48,12 +48,13 @@
       http/start))
 
 ;; TODO: Refactor this and make it more customizable and stable
-(defrecord PedestalServer [routes-var config service webapp]
+(defrecord PedestalServer [routes-var service-opts config service webapp]
   component/Lifecycle
   (start [this]
     (if service
       this
-      (let [service-config (base-service @routes-var (protocols.config/get! config :port))]
+      (let [service-config (merge (base-service @routes-var (protocols.config/get! config :port))
+                                  service-opts)]
         (if (= "dev" (protocols.config/get-maybe config :env))
           (assoc this :service (run-dev service-config routes-var webapp))
           (assoc this :service (run-prod service-config webapp))))))
@@ -64,5 +65,9 @@
       (http/stop service))
     (dissoc this :service)))
 
-(defn new-pedestal [routes-var]
-  (map->PedestalServer {:routes-var routes-var}))
+(defn new-pedestal
+  ([routes-var]
+   (new-pedestal routes-var {}))
+  ([routes-var service-opts]
+   (map->PedestalServer {:routes-var   routes-var
+                         :service-opts service-opts})))
